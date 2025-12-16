@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CPI Foundation - Cloud Connected</title>
+    <title>CPI Foundation - Command Center</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Typography for Report Formatting -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -46,7 +48,11 @@
         .edit-input { width: 100%; border: 1px solid #cbd5e1; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; }
         .edit-input:focus { outline: none; border-color: #0369a1; ring: 2px solid #e0f2fe; }
         
-        /* Loading Overlay */
+        /* Kanban Styles */
+        .kanban-col { min-height: 500px; background-color: #f8fafc; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+        .kanban-card { transition: all 0.2s; cursor: pointer; }
+        .kanban-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        
         #cloud-loader { backdrop-filter: blur(4px); background-color: rgba(255,255,255,0.7); }
     </style>
 </head>
@@ -56,7 +62,7 @@
     <div id="cloud-loader" class="fixed inset-0 z-[60] flex flex-col items-center justify-center hidden">
         <div class="w-16 h-16 border-4 border-cpi-200 border-t-cpi-700 rounded-full animate-spin mb-4"></div>
         <h3 class="font-bold text-cpi-900 text-lg">Menyinkronkan Data...</h3>
-        <p class="text-sm text-slate-500">Menghubungkan ke Google Sheets</p>
+        <p class="text-sm text-slate-500">Update ke Google Sheets</p>
     </div>
 
     <!-- TOP NAVBAR -->
@@ -69,29 +75,30 @@
                     </div>
                     <div class="leading-tight hidden sm:block">
                         <h1 class="font-bold text-lg text-slate-900 tracking-tight">CPI Foundation</h1>
-                        <p class="text-[10px] font-bold tracking-widest text-gold-600 uppercase">Cloud System 2026</p>
+                        <p class="text-[10px] font-bold tracking-widest text-gold-600 uppercase">Command Center 2026</p>
                     </div>
                 </div>
+                <!-- Navigation Menu -->
                 <div class="hidden md:flex bg-slate-100 p-1 rounded-lg gap-1">
                     <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2">
-                        <i class="fas fa-chart-pie"></i> Executive Dashboard
+                        <i class="fas fa-chart-pie"></i> Dashboard
+                    </button>
+                    <button onclick="switchView('kanban')" id="btn-kanban" class="nav-btn px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2">
+                        <i class="fas fa-columns"></i> Kanban Progres
                     </button>
                     <button onclick="switchView('roadmap')" id="btn-roadmap" class="nav-btn px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2">
-                        <i class="fas fa-calendar-check"></i> Roadmap & Edit
+                        <i class="fas fa-calendar-alt"></i> Kalender
                     </button>
                     <button onclick="switchView('drive')" id="btn-drive" class="nav-btn px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2">
-                        <i class="fab fa-google-drive"></i> Arsip Drive
+                        <i class="fab fa-google-drive"></i> Arsip
                     </button>
                 </div>
                 <div class="flex items-center gap-3">
-                    <!-- Status Indicator -->
                     <div id="status-indicator" class="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded border border-yellow-200" title="Status Koneksi">
                         <div class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
                         <span class="text-[10px] font-bold text-yellow-700">Connecting...</span>
                     </div>
-                    <button onclick="forceSync()" class="text-[10px] bg-cpi-100 text-cpi-700 px-2 py-1 rounded hover:bg-cpi-200 transition" title="Sync Manual">
-                        <i class="fas fa-sync"></i>
-                    </button>
+                    <button onclick="forceSync()" class="text-[10px] bg-cpi-100 text-cpi-700 px-2 py-1 rounded hover:bg-cpi-200 transition" title="Sync Manual"><i class="fas fa-sync"></i></button>
                     <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
                         <img src="https://ui-avatars.com/api/?name=Admin+CPI&background=0c4a6e&color=fff" alt="Profile">
                     </div>
@@ -106,16 +113,17 @@
         <!-- VIEW 1: DASHBOARD -->
         <div id="view-dashboard" class="absolute inset-0 overflow-y-auto p-6 transition-opacity duration-300 z-20 bg-slate-50">
             <div class="max-w-6xl mx-auto space-y-6">
+                <!-- Info Banner -->
                 <div class="bg-gradient-to-r from-cpi-800 to-cpi-600 rounded-xl p-6 text-white shadow-lg flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-bold mb-1">Status Strategis 2026</h2>
+                        <h2 class="text-2xl font-bold mb-1">Status Eksekusi 2026</h2>
                         <p class="text-cpi-100 text-sm max-w-2xl">
-                            Data terhubung dengan <strong>Google Sheets Database</strong>. Perubahan di sini akan langsung tersimpan di cloud.
+                            Pantau status real-time dari Google Sheet Database.
                         </p>
                     </div>
                     <div class="text-right flex flex-col items-end gap-2">
                         <a href="https://docs.google.com/spreadsheets/d/1Mkg-0YdozdgmzQyP4PoI2VEFknniY9eabLciOuzKR_c/edit" target="_blank" class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-xs font-bold backdrop-blur-sm transition flex items-center gap-2">
-                            <i class="fas fa-table"></i> Buka Database Sheet
+                            <i class="fas fa-table"></i> Database
                         </a>
                         <div class="hidden md:block">
                             <p class="text-xs text-cpi-200">Last Sync</p>
@@ -124,41 +132,31 @@
                     </div>
                 </div>
 
+                <!-- Stats -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-cpi-500">
-                        <div class="flex justify-between items-start">
-                            <div class="text-xs text-slate-500 uppercase font-bold">Total Program</div>
-                            <i class="fas fa-clipboard-list text-cpi-200"></i>
-                        </div>
+                        <div class="flex justify-between items-start"><div class="text-xs text-slate-500 uppercase font-bold">Total Program</div><i class="fas fa-clipboard-list text-cpi-200"></i></div>
                         <div class="text-3xl font-bold text-cpi-700 mt-2" id="statTotal">...</div>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-gold-500">
-                        <div class="flex justify-between items-start">
-                            <div class="text-xs text-slate-500 uppercase font-bold">Estimasi RAB</div>
-                            <i class="fas fa-coins text-gold-200"></i>
-                        </div>
+                        <div class="flex justify-between items-start"><div class="text-xs text-slate-500 uppercase font-bold">Estimasi RAB</div><i class="fas fa-coins text-gold-200"></i></div>
                         <div class="text-2xl font-bold text-gold-600 mt-2 tracking-tight" id="statBudget">...</div>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-500">
-                        <div class="flex justify-between items-start">
-                            <div class="text-xs text-slate-500 uppercase font-bold">Rata-rata</div>
-                            <i class="fas fa-chart-line text-emerald-200"></i>
-                        </div>
-                        <div class="text-xl font-bold text-emerald-600 mt-2" id="statAvg">...</div>
+                        <div class="flex justify-between items-start"><div class="text-xs text-slate-500 uppercase font-bold">Selesai (Done)</div><i class="fas fa-check-circle text-emerald-200"></i></div>
+                        <div class="text-xl font-bold text-emerald-600 mt-2" id="statDone">...</div>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-purple-500">
-                        <div class="flex justify-between items-start">
-                            <div class="text-xs text-slate-500 uppercase font-bold">Pilar Dominan</div>
-                            <i class="fas fa-star text-purple-200"></i>
-                        </div>
-                        <div class="text-xl font-bold text-purple-600 mt-2" id="statDominant">...</div>
+                        <div class="flex justify-between items-start"><div class="text-xs text-slate-500 uppercase font-bold">Sedang Jalan</div><i class="fas fa-running text-purple-200"></i></div>
+                        <div class="text-xl font-bold text-purple-600 mt-2" id="statDoing">...</div>
                     </div>
                 </div>
 
+                <!-- Charts -->
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-80">
-                        <h3 class="font-bold text-slate-700 mb-4 text-sm uppercase">Sebaran Program per Pilar</h3>
-                        <div class="relative h-64 w-full"><canvas id="pillarChart"></canvas></div>
+                        <h3 class="font-bold text-slate-700 mb-4 text-sm uppercase">Status Kegiatan</h3>
+                        <div class="relative h-64 w-full"><canvas id="statusChart"></canvas></div>
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-80">
                         <h3 class="font-bold text-slate-700 mb-4 text-sm uppercase">Timeline Kegiatan</h3>
@@ -168,28 +166,72 @@
             </div>
         </div>
 
-        <!-- VIEW 2: ROADMAP -->
+        <!-- VIEW 2: KANBAN BOARD -->
+        <div id="view-kanban" class="absolute inset-0 overflow-y-auto p-6 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
+            <div class="max-w-7xl mx-auto h-full flex flex-col">
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-columns text-cpi-600"></i> Papan Kontrol Kegiatan</h2>
+                        <p class="text-slate-500 text-sm mt-1">Geser status kegiatan untuk memperbarui progres.</p>
+                    </div>
+                </div>
+                
+                <!-- Kanban Columns -->
+                <div class="grid md:grid-cols-3 gap-6 flex-1 min-h-[500px]">
+                    <!-- TODO -->
+                    <div class="kanban-col flex flex-col">
+                        <div class="p-3 border-b border-slate-200 bg-slate-100 rounded-t-lg flex justify-between items-center sticky top-0">
+                            <h3 class="font-bold text-slate-600 text-sm uppercase"><i class="far fa-circle mr-2"></i> Rencana (To Do)</h3>
+                            <span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold" id="count-todo">0</span>
+                        </div>
+                        <div class="p-3 space-y-3 flex-1 overflow-y-auto" id="kanban-todo"></div>
+                    </div>
+
+                    <!-- DOING -->
+                    <div class="kanban-col flex flex-col border-t-4 border-t-blue-500">
+                        <div class="p-3 border-b border-slate-200 bg-blue-50 rounded-t-lg flex justify-between items-center sticky top-0">
+                            <h3 class="font-bold text-blue-700 text-sm uppercase"><i class="fas fa-spinner fa-spin mr-2"></i> Sedang Berjalan</h3>
+                            <span class="bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full text-xs font-bold" id="count-doing">0</span>
+                        </div>
+                        <div class="p-3 space-y-3 flex-1 overflow-y-auto bg-blue-50/30" id="kanban-doing"></div>
+                    </div>
+
+                    <!-- DONE -->
+                    <div class="kanban-col flex flex-col border-t-4 border-t-emerald-500">
+                        <div class="p-3 border-b border-slate-200 bg-emerald-50 rounded-t-lg flex justify-between items-center sticky top-0">
+                            <h3 class="font-bold text-emerald-700 text-sm uppercase"><i class="fas fa-check-circle mr-2"></i> Selesai</h3>
+                            <span class="bg-emerald-200 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-bold" id="count-done">0</span>
+                        </div>
+                        <div class="p-3 space-y-3 flex-1 overflow-y-auto bg-emerald-50/30" id="kanban-done"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: ROADMAP (GRID) -->
         <div id="view-roadmap" class="absolute inset-0 overflow-y-auto p-6 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
             <div class="max-w-7xl mx-auto space-y-8 pb-12">
                 <div class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-slate-200 pb-6">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                            <i class="fas fa-edit text-cpi-600"></i> Editor Program & RAB
-                        </h2>
-                        <p class="text-slate-500 mt-1 text-sm">Update data di sini akan menyinkronkan Google Sheet secara otomatis.</p>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-calendar-alt text-cpi-600"></i> Kalender Kegiatan</h2>
+                        <p class="text-slate-500 mt-1 text-sm">Tampilan bulanan seluruh rencana kerja.</p>
                     </div>
-                    <div class="flex gap-2 flex-wrap">
-                        <button onclick="filterProgram('all')" class="px-3 py-1 text-xs font-bold rounded-full bg-slate-800 text-white shadow transition">Semua</button>
-                        <button onclick="filterProgram('Pendidikan')" class="px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition">Pendidikan</button>
-                        <button onclick="filterProgram('Kesehatan')" class="px-3 py-1 text-xs font-bold rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200 transition">Kesehatan</button>
-                        <button onclick="filterProgram('Lingkungan')" class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition">Lingkungan</button>
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <button onclick="openGuide()" class="px-4 py-1.5 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 hover:bg-indigo-200 transition shadow-sm mr-2 animate-pulse">
+                            <i class="fas fa-book-open mr-1"></i> Baca Panduan Strategis
+                        </button>
+                        <div class="h-6 w-px bg-slate-300 mx-2 hidden md:block"></div>
+                        <button onclick="filterProgram('all')" class="px-3 py-1 text-xs font-bold rounded-full bg-slate-800 text-white">Semua</button>
+                        <button onclick="filterProgram('Pendidikan')" class="px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">Pendidikan</button>
+                        <button onclick="filterProgram('Kesehatan')" class="px-3 py-1 text-xs font-bold rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">Kesehatan</button>
+                        <button onclick="filterProgram('Lingkungan')" class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Lingkungan</button>
                     </div>
                 </div>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="programGrid"></div>
             </div>
         </div>
 
-        <!-- VIEW 3: DRIVE -->
+        <!-- VIEW 4: DRIVE -->
         <div id="view-drive" class="absolute inset-0 flex transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
             <aside class="w-64 md:w-72 bg-white border-r border-slate-200 flex flex-col h-full shadow-lg z-20 flex-none">
                 <div class="p-4 border-b border-slate-100 bg-slate-50">
@@ -208,6 +250,7 @@
                     </a>
                 </div>
                 <div class="flex-1 relative bg-slate-50">
+                    <!-- Added Missing Loader -->
                     <div id="driveLoader" class="absolute inset-0 flex items-center justify-center z-0">
                         <div class="text-center animate-pulse">
                             <i class="fab fa-google-drive text-4xl text-slate-300"></i>
@@ -219,9 +262,110 @@
             </main>
         </div>
 
-        <!-- MODAL EDIT -->
+        <!-- GUIDE MODAL (NEW) -->
+        <div id="guideModal" class="fixed inset-0 z-50 hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 h-[85vh] flex flex-col transform transition-all scale-95 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
+                    <h3 class="font-bold text-lg text-slate-800"><i class="fas fa-atlas text-cpi-600 mr-2"></i> Laporan Strategis & Panduan Kegiatan 2026</h3>
+                    <button onclick="closeGuide()" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="p-8 overflow-y-auto prose prose-slate max-w-none bg-white">
+                    <div class="mb-8 p-4 bg-indigo-50 border border-indigo-100 rounded-lg">
+                        <h4 class="text-indigo-800 font-bold m-0 text-sm">Tentang Dokumen Ini</h4>
+                        <p class="text-sm text-indigo-700 mt-1 m-0">Dokumen ini adalah ringkasan eksekutif untuk panduan strategis Yayasan CPI tahun 2026, berfokus pada Tahun Relawan Internasional.</p>
+                    </div>
+
+                    <h3>Bab 1: Landasan Strategis & Mandat Tiga Pilar</h3>
+                    <p>Strategi tahun 2026 berakar pada integritas sosial dan kontribusi nyata bagi masyarakat lingkar tambang serta keluarga besar alumni. Yayasan didukung oleh basis anggota berlatar belakang teknis pertambangan (engineering expertise).</p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 my-6">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <strong class="text-blue-800">1. Cakrawala Peduli Pendidikan</strong>
+                            <p class="text-xs mt-2">Bukan sekadar dana, tapi pendampingan intelektual (transfer of knowledge) dari praktisi tambang ke dunia pendidikan.</p>
+                        </div>
+                        <div class="bg-rose-50 p-4 rounded-lg border border-rose-100">
+                            <strong class="text-rose-800">2. Cakrawala Peduli Kesehatan</strong>
+                            <p class="text-xs mt-2">Pendekatan preventif: Isu stunting & Budaya K3 (Keselamatan Kerja) ditularkan ke rumah tangga.</p>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+                            <strong class="text-emerald-800">3. Cakrawala Peduli Lingkungan</strong>
+                            <p class="text-xs mt-2">Berbasis sains (science-based conservation). Rehabilitasi lahan kritis & edukasi limbah yang teruji.</p>
+                        </div>
+                    </div>
+
+                    <h4>Konteks Global: International Year of Volunteers (IVY 2026)</h4>
+                    <p>PBB mendeklarasikan 2026 sebagai tahun relawan. Yayasan CPI mengangkat tema <strong>"Mining Engineers for Nation"</strong>. Kontribusi bukan hanya uang, tapi waktu & tenaga ahli.</p>
+                    <ul>
+                        <li><strong>Aksi Nyata:</strong> Mengubah format "memberi bantuan" menjadi "bekerja bersama masyarakat".</li>
+                        <li><strong>CSR Ready:</strong> Program harus auditabel & mendukung penilaian PROPER perusahaan tambang (mitra donor).</li>
+                    </ul>
+
+                    <hr>
+
+                    <h3>Bab 2: Strategi Pilar Lingkungan</h3>
+                    <p><strong>Masalah Umum:</strong> Penanaman pohon sering mati karena dilakukan saat Hari Bumi (April) atau Hari Lingkungan (Juni) yang masuk musim kemarau.</p>
+                    <p><strong>Strategi Baru:</strong></p>
+                    <ul>
+                        <li><strong>Fase Edukasi (Jan-Jun):</strong> Fokus manajemen sampah & bersih-bersih (Coastal Clean Up) saat kemarau.</li>
+                        <li><strong>Fase Penanaman (Nov-Des):</strong> Penanaman massal dilakukan November (Hari Menanam Pohon Indonesia) saat awal musim hujan untuk survival rate tinggi.</li>
+                    </ul>
+
+                    <hr>
+
+                    <h3>Bab 3: Strategi Pilar Kesehatan</h3>
+                    <p><strong>Fokus:</strong> Stunting & K3 Rumah Tangga.</p>
+                    <ul>
+                        <li><strong>K3 Masuk Desa (Januari):</strong> Edukasi bahaya listrik & kebakaran dapur.</li>
+                        <li><strong>Intervensi Gizi:</strong> Bermitra dengan Posyandu untuk PMT (Pemberian Makanan Tambahan) protein hewani.</li>
+                    </ul>
+
+                    <hr>
+
+                    <h3>Bab 4: Strategi Pilar Pendidikan</h3>
+                    <p><strong>Beasiswa "Anak Tambang":</strong> Penggalangan dana dimulai Maret (Ramadhan), seleksi Mei, distribusi Juli (Tahun Ajaran Baru).</p>
+                    <p><strong>Mining Goes to School:</strong> Alumni kembali ke sekolah (Mei/Hardiknas) untuk motivasi STEM.</p>
+
+                    <hr>
+
+                    <h3>Bab 5: Kalender Kegiatan (Timeline)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-slate-100"><tr><th>Bulan</th><th>Momen</th><th>Kegiatan Unggulan</th></tr></thead>
+                            <tbody>
+                                <tr><td>Januari</td><td>Bulan K3</td><td><strong>Webinar: Safety Begins at Home</strong></td></tr>
+                                <tr><td>Februari</td><td>Hari Sampah</td><td><strong>Kampanye Zero Waste Mining Family</strong></td></tr>
+                                <tr><td>Maret</td><td>Ramadhan/Hari Air</td><td><strong>Charity Ramadhan & Air Bersih</strong></td></tr>
+                                <tr><td>April</td><td>Hari Bumi</td><td><strong>Launching Beasiswa 2026</strong></td></tr>
+                                <tr><td>Mei</td><td>Hardiknas</td><td><strong>Mining Goes to School</strong></td></tr>
+                                <tr><td>Juni</td><td>Hari Lingkungan</td><td><strong>Coastal Clean Up (Bersih Pantai)</strong></td></tr>
+                                <tr><td>Juli</td><td>Hari Anak</td><td><strong>Distribusi Beasiswa & Paket Gizi</strong></td></tr>
+                                <tr><td>Agustus</td><td>HUT RI</td><td><strong>Donor Darah Merdeka</strong></td></tr>
+                                <tr><td>September</td><td>Hari Pertambangan</td><td><strong>Gala Dinner: Mining for Life</strong></td></tr>
+                                <tr><td>Oktober</td><td>Mental Health Day</td><td><strong>Webinar: Mental Health in Mining</strong></td></tr>
+                                <tr><td>November</td><td>Hari Menanam</td><td><strong>The Great Planting (Hutan Alumni)</strong></td></tr>
+                                <tr><td>Desember</td><td>Volunteer Day</td><td><strong>Volunteer Appreciation Night</strong></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+
+                    <h3>Bab 6: Strategi Operasional</h3>
+                    <ul>
+                        <li><strong>Siklus Proposal CSR:</strong> Proposal 2026 harus masuk ke perusahaan tambang pada Agt-Sep 2025.</li>
+                        <li><strong>Manajemen Relawan:</strong> Gunakan sistem poin untuk menghargai partisipasi alumni (diskon tiket Gala Dinner/Merchandise).</li>
+                    </ul>
+                </div>
+                <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                    <button onclick="closeGuide()" class="px-6 py-2 bg-slate-800 text-white font-bold rounded hover:bg-slate-900 transition">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL EDIT (EXISTING) -->
         <div id="programModal" class="fixed inset-0 z-50 hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden transform transition-all scale-95 flex flex-col max-h-[90vh]" id="modalContent">
+                <!-- Header -->
                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
                     <div id="header-view" class="w-full">
                         <h3 class="font-bold text-lg text-slate-800 leading-tight" id="modalTitle">Judul Program</h3>
@@ -231,16 +375,23 @@
                     </div>
                     <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 transition ml-4"><i class="fas fa-times text-xl"></i></button>
                 </div>
+                
+                <!-- Body -->
                 <div class="p-6 overflow-y-auto space-y-6 flex-1">
                     <div id="content-view" class="space-y-6">
-                        <div class="flex gap-2 mb-2" id="modalTags"></div>
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-2" id="modalTags"></div>
+                            <!-- Status Badge -->
+                            <div id="viewStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border"></div>
+                        </div>
+                        
                         <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
                             <h4 class="text-xs font-bold uppercase text-blue-800 mb-2 tracking-wider">Latar Belakang</h4>
                             <p class="text-sm text-slate-600 leading-relaxed" id="modalDesc">Deskripsi...</p>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="p-3 border border-slate-200 rounded-lg">
-                                <div class="text-xs text-slate-400 uppercase font-bold mb-1">Target KPI</div>
+                                <div class="text-xs text-slate-400 uppercase font-bold mb-1">KPI</div>
                                 <div class="font-semibold text-slate-800 text-sm" id="modalKPI">-</div>
                             </div>
                             <div class="p-3 border border-slate-200 rounded-lg bg-yellow-50 border-yellow-100">
@@ -261,27 +412,36 @@
                             <ul class="space-y-3" id="modalSteps"></ul>
                         </div>
                     </div>
+
+                    <!-- Edit Form -->
                     <div id="content-edit" class="space-y-4 hidden">
-                        <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea id="editDesc" rows="4" class="edit-input"></textarea></div>
+                        <!-- New Status Dropdown -->
+                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                            <label class="text-xs font-bold text-indigo-700 uppercase block mb-1">Update Status Kegiatan</label>
+                            <select id="editStatus" class="w-full border border-indigo-300 rounded p-2 text-sm font-bold text-indigo-900 bg-white">
+                                <option value="todo">Rencana (To Do)</option>
+                                <option value="doing">Sedang Berjalan (Doing)</option>
+                                <option value="done">Selesai (Done)</option>
+                            </select>
+                        </div>
+
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea id="editDesc" rows="3" class="edit-input"></textarea></div>
                         <div class="grid grid-cols-2 gap-4">
                             <div><label class="text-xs font-bold text-slate-500 uppercase">KPI</label><input type="text" id="editKPI" class="edit-input"></div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">RAB (Rp)</label>
-                                <input type="text" id="editRAB" class="edit-input font-mono font-bold text-yellow-700" placeholder="Contoh: 50.000.000">
-                                <p class="text-[10px] text-slate-400">Masukkan angka saja atau format "Rp ...".</p>
-                            </div>
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">RAB (Rp)</label><input type="text" id="editRAB" class="edit-input font-mono font-bold text-yellow-700"></div>
                             <div><label class="text-xs font-bold text-slate-500 uppercase">PIC</label><input type="text" id="editPIC" class="edit-input"></div>
                             <div><label class="text-xs font-bold text-slate-500 uppercase">Lokasi</label><input type="text" id="editLoc" class="edit-input"></div>
                         </div>
-                        <div><label class="text-xs font-bold text-slate-500 uppercase mb-2 block">Tahapan (Baris baru per langkah)</label><textarea id="editSteps" rows="5" class="edit-input"></textarea></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase mb-2 block">Tahapan (Baris baru per langkah)</label><textarea id="editSteps" rows="4" class="edit-input"></textarea></div>
                     </div>
                 </div>
+                <!-- Footer -->
                 <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center flex-none">
-                    <span class="text-[10px] text-slate-400 italic" id="edit-hint">*Tersimpan ke Google Sheets.</span>
+                    <span class="text-[10px] text-slate-400 italic" id="edit-hint">*Tersimpan ke Cloud.</span>
                     <div class="flex gap-2">
                         <button id="btn-cancel" onclick="toggleEditMode(false)" class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded transition hidden">Batal</button>
                         <button id="btn-edit" onclick="toggleEditMode(true)" class="px-4 py-2 text-sm font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded transition shadow-sm"><i class="fas fa-edit mr-2"></i> Edit Data</button>
-                        <button id="btn-save" onclick="saveChanges()" class="px-4 py-2 text-sm font-bold bg-green-600 text-white hover:bg-green-700 rounded transition shadow hidden"><i class="fas fa-save mr-2"></i> Simpan ke Cloud</button>
+                        <button id="btn-save" onclick="saveChanges()" class="px-4 py-2 text-sm font-bold bg-green-600 text-white hover:bg-green-700 rounded transition shadow hidden"><i class="fas fa-save mr-2"></i> Update</button>
                     </div>
                 </div>
             </div>
@@ -293,20 +453,11 @@
         // ================= CONFIGURATION =================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxt87Vpeg8rhvf0cRj22-N95qGAshGt5J3sqceEUkAnnQJUmnIBY-T2yarIH646zWCC/exec"; 
         
-        // --- DEFAULT DATA (Strategic 2026) ---
+        // --- DEFAULT DATA (Fallback) ---
         const fallbackData = [
-            { id: 1, month: 'Januari', date: '17 Jan (Sabtu)', title: 'Webinar: Safety Begins at Home', pillar: 'Kesehatan', color: 'rose', desc: 'Pelatihan K3 listrik & P3K rumah tangga.', kpi: '50 Keluarga Alumni.', rab: 'Rp 5.000.000', pic: 'Divisi Safety', loc: 'Online', steps: ['Rekrutmen Pemateri', 'Siapkan Alat Demo'] },
-            { id: 2, month: 'Februari', date: '21 Feb (Sabtu)', title: 'Kampanye Zero Waste Mining Family', pillar: 'Lingkungan', color: 'emerald', desc: 'Edukasi pemilahan sampah organik.', kpi: '30 Keluarga Pilot Project.', rab: 'Rp 3.000.000', pic: 'Divisi Lingkungan', loc: 'Online', steps: ['Desain Materi', 'Challenge Medsos'] },
-            { id: 3, month: 'Maret', date: 'Awal Mar', title: 'Charity Ramadhan & Air Bersih', pillar: 'Sosial', color: 'rose', desc: 'Bantuan air bersih & sembako.', kpi: '1 Instalasi Air, 200 Sembako.', rab: 'Rp 80.000.000', pic: 'Divisi Sosial', loc: 'Desa Binaan', steps: ['Survey Lokasi', 'Eksekusi'] },
-            { id: 4, month: 'April', date: '22 Apr (Rabu)', title: 'Launching Beasiswa Anak Tambang', pillar: 'Pendidikan', color: 'blue', desc: 'Beasiswa khusus peduli lingkungan.', kpi: '50 Pendaftar.', rab: 'Rp 5.000.000', pic: 'Divisi Pendidikan', loc: 'Online', steps: ['Finalisasi Pedoman', 'Blast Info'] },
-            { id: 5, month: 'Mei', date: '02 Mei', title: 'Mining Goes to School', pillar: 'Pendidikan', color: 'blue', desc: 'Alumni mengajar di sekolah.', kpi: '3 Sekolah.', rab: 'Rp 10.000.000', pic: 'Divisi Pendidikan', loc: 'Sekolah Mitra', steps: ['Hubungi Sekolah', 'Roadshow'] },
-            { id: 6, month: 'Juni', date: '07 Jun (Minggu)', title: 'Coastal Clean Up', pillar: 'Lingkungan', color: 'emerald', desc: 'Bersih pantai di Hari Lingkungan Hidup.', kpi: '500kg Sampah.', rab: 'Rp 15.000.000', pic: 'Divisi Lingkungan', loc: 'Pesisir', steps: ['Perizinan', 'Aksi'] },
-            { id: 7, month: 'Juli', date: '18 Jul', title: 'Distribusi Beasiswa & Gizi', pillar: 'Pendidikan', color: 'blue', desc: 'Penyerahan beasiswa & paket gizi.', kpi: '20 Beasiswa, 100 Gizi.', rab: 'Rp 70.000.000', pic: 'Pendidikan & Kes', loc: 'Sekretariat', steps: ['Data Final', 'Seremonial'] },
-            { id: 8, month: 'Agustus', date: '16 Agu', title: 'Donor Darah Merdeka', pillar: 'Kesehatan', color: 'rose', desc: 'Aksi donor darah HUT RI.', kpi: '75 Kantong.', rab: 'Rp 7.500.000', pic: 'Divisi Kesehatan', loc: 'PMI Center', steps: ['Booking PMI', 'Pelaksanaan'] },
-            { id: 9, month: 'September', date: '26 Sep', title: 'Gala Dinner: Mining for Life', pillar: 'Internal', color: 'slate', desc: 'Fundraising utama Hari Pertambangan.', kpi: 'Rp 1 Milyar Terkumpul.', rab: 'Rp 200.000.000', pic: 'Fundraising', loc: 'Hotel Jkt', steps: ['Konsep', 'Undangan'] },
-            { id: 10, month: 'Oktober', date: '10 Okt', title: 'Webinar Mental Health', pillar: 'Kesehatan', color: 'rose', desc: 'Isu mental pekerja roster.', kpi: '150 Peserta.', rab: 'Rp 3.000.000', pic: 'Divisi Kesehatan', loc: 'Zoom', steps: ['Cari Psikolog', 'Webinar'] },
-            { id: 11, month: 'November', date: '28 Nov', title: 'The Great Planting', pillar: 'Lingkungan', color: 'emerald', desc: 'Tanam pohon musim hujan.', kpi: '1000 Pohon.', rab: 'Rp 50.000.000', pic: 'Divisi Lingkungan', loc: 'Lahan Kritis', steps: ['Cari Lahan', 'Tanam'] },
-            { id: 12, month: 'Desember', date: '05 Des', title: 'Volunteer Appreciation', pillar: 'Internal', color: 'slate', desc: 'Awarding relawan.', kpi: 'Awarding Night.', rab: 'Rp 20.000.000', pic: 'Sekretariat', loc: 'Sekretariat', steps: ['Hitung Poin', 'Syukuran'] }
+            { id: 1, status: 'todo', month: 'Januari', date: '17 Jan', title: 'Webinar: Safety Begins at Home', pillar: 'Kesehatan', color: 'rose', desc: 'Pelatihan K3 listrik.', kpi: '50 Keluarga.', rab: 'Rp 5.000.000', pic: 'Divisi Safety', loc: 'Online', steps: ['Rekrutmen', 'Siap Alat'] },
+            { id: 4, status: 'doing', month: 'April', date: '22 Apr', title: 'Launching Beasiswa', pillar: 'Pendidikan', color: 'blue', desc: 'Beasiswa lingkungan.', kpi: '50 Pendaftar.', rab: 'Rp 5.000.000', pic: 'Pendidikan', loc: 'Online', steps: ['Pedoman', 'Blast'] },
+            { id: 9, status: 'todo', month: 'September', date: '26 Sep', title: 'Gala Dinner Mining', pillar: 'Internal', color: 'slate', desc: 'Fundraising.', kpi: 'Rp 1 Milyar.', rab: 'Rp 200.000.000', pic: 'Fundraising', loc: 'Hotel', steps: ['Konsep', 'Undangan'] }
         ];
 
         let programKerja = [];
@@ -323,7 +474,7 @@
 
         // --- INIT & SYNC LOGIC ---
         window.addEventListener('DOMContentLoaded', () => {
-            fetchData(); // Try load from Cloud
+            fetchData();
             renderDriveSidebar();
         });
 
@@ -335,16 +486,16 @@
                 const data = await response.json();
                 
                 if(data && data.length > 0) {
-                    programKerja = data;
+                    // Ensure 'status' field exists
+                    programKerja = data.map(p => ({...p, status: p.status || 'todo'}));
                     setStatus('Online', 'green');
                 } else {
-                    // Jika sheet kosong, gunakan data fallback & inisialisasi sheet
                     programKerja = fallbackData;
-                    setStatus('Offline / Initial', 'gray');
-                    forceSync(); // Auto-seed data if empty
+                    setStatus('Offline/Init', 'gray');
+                    forceSync();
                 }
             } catch (e) {
-                console.warn("Gagal fetch dari Sheet, gunakan fallback/local.", e);
+                console.warn("Gagal fetch, pakai local.", e);
                 const local = localStorage.getItem('cpi_cloud_backup');
                 programKerja = local ? JSON.parse(local) : fallbackData;
                 setStatus('Offline Mode', 'red');
@@ -358,134 +509,136 @@
             showLoader(true);
             setStatus('Syncing...', 'yellow');
             try {
-                // Save to Local Backup first
                 localStorage.setItem('cpi_cloud_backup', JSON.stringify(programKerja));
-
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Mode no-cors wajib untuk simple POST ke GAS
-                    headers: { 'Content-Type': 'application/json' }, // Changed to application/json for better GAS parsing
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(programKerja)
                 });
-                
                 setStatus('Online', 'green');
                 refreshUI();
-                const now = new Date();
-                document.getElementById('lastUpdate').innerText = now.toLocaleTimeString('id-ID');
-                
+                document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString('id-ID');
             } catch (e) {
-                alert("Gagal mengirim ke Google Sheets. Data tersimpan di browser sementara.");
-                console.error(e);
+                alert("Gagal sync ke cloud.");
                 setStatus('Sync Error', 'red');
             } finally {
                 showLoader(false);
             }
         }
         
-        function forceSync() {
-            if(confirm("Kirim ulang semua data lokal ke Google Sheets?")) {
-                saveDataToCloud();
-            }
-        }
-
+        function forceSync() { if(confirm("Kirim ulang data ke Sheet?")) saveDataToCloud(); }
         function refreshUI() {
             updateDashboard();
             renderRoadmap(programKerja);
+            renderKanban(); 
         }
-
-        function showLoader(show) {
-            const el = document.getElementById('cloud-loader');
-            if(show) el.classList.remove('hidden');
-            else el.classList.add('hidden');
-        }
+        function showLoader(show) { document.getElementById('cloud-loader').className = show ? 'fixed inset-0 z-[60] flex flex-col items-center justify-center' : 'hidden'; }
         
         function setStatus(text, color) {
             const el = document.getElementById('status-indicator');
-            const dot = el.querySelector('div');
-            const txt = el.querySelector('span');
-            
             el.className = `flex items-center gap-1 bg-${color}-50 px-2 py-1 rounded border border-${color}-200`;
-            dot.className = `w-2 h-2 rounded-full bg-${color}-500 ${color === 'yellow' || color === 'green' ? 'animate-pulse' : ''}`;
-            txt.className = `text-[10px] font-bold text-${color}-700`;
-            txt.innerText = text;
+            el.innerHTML = `<div class="w-2 h-2 rounded-full bg-${color}-500 ${['yellow','green'].includes(color)?'animate-pulse':''}"></div><span class="text-[10px] font-bold text-${color}-700">${text}</span>`;
         }
 
-        // --- DASHBOARD LOGIC ---
+        // --- DASHBOARD ---
         function updateDashboard() {
             const total = programKerja.length;
-            document.getElementById('statTotal').innerText = total;
-
             let totalBudget = 0;
-            const pillarCounts = {};
+            let done = 0, doing = 0;
             
             programKerja.forEach(p => {
-                const cleanRAB = String(p.rab).replace(/[^0-9]/g, '');
-                totalBudget += (parseInt(cleanRAB) || 0);
-                const pillar = p.pillar === 'Sosial' ? 'Kesehatan' : p.pillar;
-                pillarCounts[pillar] = (pillarCounts[pillar] || 0) + 1;
+                totalBudget += (parseInt(String(p.rab).replace(/[^0-9]/g, '')) || 0);
+                if(p.status === 'done') done++;
+                if(p.status === 'doing') doing++;
             });
 
-            const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
-            document.getElementById('statBudget').innerText = formatter.format(totalBudget);
-            document.getElementById('statAvg').innerText = formatter.format(total > 0 ? totalBudget/total : 0);
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statDone').innerText = done;
+            document.getElementById('statDoing').innerText = doing;
+            document.getElementById('statBudget').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalBudget);
 
-            let maxPillar = '-'; let maxCount = 0;
-            for (const [key, value] of Object.entries(pillarCounts)) {
-                if (value > maxCount) { maxCount = value; maxPillar = key; }
-            }
-            document.getElementById('statDominant').innerText = maxPillar;
-            updateCharts(pillarCounts, programKerja);
+            updateCharts(done, doing, total);
         }
 
-        function updateCharts(counts, data) {
-            const ctx1 = document.getElementById('pillarChart').getContext('2d');
-            if(window.pillarChart instanceof Chart) window.pillarChart.destroy();
-            const safeCounts = { 'Pendidikan': 0, 'Lingkungan': 0, 'Kesehatan': 0, 'Internal': 0 };
-            Object.keys(counts).forEach(k => safeCounts[k] = counts[k]);
-
-            window.pillarChart = new Chart(ctx1, {
-                type: 'doughnut',
-                data: { labels: ['Pendidikan', 'Lingkungan', 'Kesehatan', 'Internal'], datasets: [{ data: Object.values(safeCounts), backgroundColor: ['#3b82f6', '#10b981', '#f43f5e', '#64748b'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+        function updateCharts(done, doing, total) {
+            const ctx1 = document.getElementById('statusChart').getContext('2d');
+            if(window.statusChart instanceof Chart) window.statusChart.destroy();
+            window.statusChart = new Chart(ctx1, {
+                type: 'pie',
+                data: { 
+                    labels: ['Selesai', 'Berjalan', 'Rencana'], 
+                    datasets: [{ data: [done, doing, total - done - doing], backgroundColor: ['#10b981', '#a855f7', '#cbd5e1'], borderWidth: 0 }] 
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
 
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            const monthCounts = Array(12).fill(0);
-            data.forEach(p => {
-                const mIndex = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'].indexOf(p.month);
-                if(mIndex >= 0) monthCounts[mIndex]++;
+            const mCounts = Array(12).fill(0);
+            programKerja.forEach(p => {
+                const idx = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'].indexOf(p.month);
+                if(idx >= 0) mCounts[idx]++;
             });
-
             const ctx2 = document.getElementById('monthlyChart').getContext('2d');
             if(window.monthlyChart instanceof Chart) window.monthlyChart.destroy();
             window.monthlyChart = new Chart(ctx2, {
                 type: 'bar',
-                data: { labels: months, datasets: [{ label: 'Kegiatan', data: monthCounts, backgroundColor: '#0369a1', borderRadius: 4 }] },
+                data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'], datasets: [{ label: 'Kegiatan', data: mCounts, backgroundColor: '#0369a1', borderRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false } } }
             });
+        }
+
+        // --- KANBAN RENDERER ---
+        function renderKanban() {
+            const cols = { todo: document.getElementById('kanban-todo'), doing: document.getElementById('kanban-doing'), done: document.getElementById('kanban-done') };
+            const counts = { todo: 0, doing: 0, done: 0 };
+            Object.values(cols).forEach(c => c.innerHTML = '');
+
+            programKerja.forEach(p => {
+                const st = p.status || 'todo';
+                counts[st]++;
+                const cMap = { 'Pendidikan': 'blue', 'Kesehatan': 'rose', 'Lingkungan': 'emerald', 'Internal': 'slate', 'Sosial': 'rose' };
+                const c = cMap[p.pillar] || 'slate';
+
+                const card = document.createElement('div');
+                card.className = `kanban-card bg-white p-3 rounded shadow-sm border-l-4 border-${c}-500`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[10px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1.5 py-0.5 rounded">${p.pillar}</span>
+                        <span class="text-[10px] text-slate-400 font-mono">${p.month}</span>
+                    </div>
+                    <h4 class="font-bold text-sm text-slate-800 leading-tight mb-2">${p.title}</h4>
+                    <div class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2">
+                        <span><i class="far fa-user mr-1"></i> ${p.pic}</span>
+                        <span><i class="far fa-edit hover:text-cpi-600 transition" onclick="event.stopPropagation(); openProgramDetail(${p.id})"></i></span>
+                    </div>
+                `;
+                card.onclick = () => openProgramDetail(p.id);
+                if(cols[st]) cols[st].appendChild(card);
+            });
+
+            document.getElementById('count-todo').innerText = counts.todo;
+            document.getElementById('count-doing').innerText = counts.doing;
+            document.getElementById('count-done').innerText = counts.done;
         }
 
         // --- ROADMAP & EDIT ---
         function renderRoadmap(data) {
             const container = document.getElementById('programGrid');
-            const colorMap = { 'Pendidikan': 'blue', 'Kesehatan': 'rose', 'Lingkungan': 'emerald', 'Internal': 'slate', 'Sosial': 'rose' };
-            container.innerHTML = data.map(item => {
-                const c = colorMap[item.pillar] || 'slate';
+            const cMap = { 'Pendidikan': 'blue', 'Kesehatan': 'rose', 'Lingkungan': 'emerald', 'Internal': 'slate', 'Sosial': 'rose' };
+            container.innerHTML = data.map(p => {
+                const c = cMap[p.pillar] || 'slate';
+                let statusIcon = '';
+                if(p.status === 'done') statusIcon = '<span class="absolute top-2 right-2 text-emerald-500 bg-white rounded-full p-1 shadow"><i class="fas fa-check-circle"></i></span>';
+                else if(p.status === 'doing') statusIcon = '<span class="absolute top-2 right-2 text-blue-500 bg-white rounded-full p-1 shadow"><i class="fas fa-spinner fa-spin"></i></span>';
+
                 return `
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col h-full" onclick="openProgramDetail(${item.id})">
-                    <div class="h-2 w-full bg-${c}-500 rounded-t-xl"></div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col h-full relative overflow-hidden" onclick="openProgramDetail(${p.id})">
+                    ${statusIcon}
+                    <div class="h-2 w-full bg-${c}-500"></div>
                     <div class="p-5 flex-1 flex flex-col">
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-100">${item.month}</span>
-                            <span class="text-[10px] font-bold text-${c}-600 bg-${c}-50 px-2 py-1 rounded-full uppercase">${item.pillar}</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-lg mb-2 group-hover:text-cpi-600 transition leading-snug">${item.title}</h3>
-                        <div class="flex items-center gap-2 text-xs text-slate-500 mb-4"><i class="far fa-calendar-alt"></i> ${item.date}</div>
-                        <p class="text-sm text-slate-600 line-clamp-2 mb-4 flex-1">${item.desc}</p>
-                        <div class="pt-4 border-t border-slate-100 flex justify-between items-center mt-auto">
-                            <span class="text-xs font-bold text-slate-400">Detail & RAB</span>
-                            <i class="fas fa-arrow-right text-slate-300 group-hover:text-cpi-600 transition"></i>
-                        </div>
+                        <div class="mb-3"><span class="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-100">${p.month}</span></div>
+                        <h3 class="font-bold text-slate-800 text-lg mb-2 group-hover:text-cpi-600 transition leading-snug">${p.title}</h3>
+                        <p class="text-sm text-slate-600 line-clamp-2 mb-4 flex-1">${p.desc}</p>
                     </div>
                 </div>`;
             }).join('');
@@ -493,28 +646,33 @@
 
         function openProgramDetail(id) {
             currentEditId = id;
-            const data = programKerja.find(p => p.id === id);
-            if(!data) return;
-            const c = { 'Pendidikan': 'blue', 'Kesehatan': 'rose', 'Lingkungan': 'emerald', 'Internal': 'slate', 'Sosial': 'rose' }[data.pillar];
+            const p = programKerja.find(x => x.id === id);
+            if(!p) return;
+            const c = { 'Pendidikan': 'blue', 'Kesehatan': 'rose', 'Lingkungan': 'emerald', 'Internal': 'slate', 'Sosial': 'rose' }[p.pillar];
             
-            // View
-            document.getElementById('modalTitle').innerText = data.title;
-            document.getElementById('modalDesc').innerText = data.desc;
-            document.getElementById('modalKPI').innerText = data.kpi;
-            document.getElementById('modalRAB').innerText = data.rab;
-            document.getElementById('modalPIC').innerText = data.pic;
-            document.getElementById('modalLoc').innerText = data.loc;
-            document.getElementById('modalTags').innerHTML = `<span class="px-2 py-1 bg-${c}-100 text-${c}-700 rounded text-xs font-bold uppercase">${data.pillar}</span>`;
-            document.getElementById('modalSteps').innerHTML = (data.steps || []).map((s, i) => `<li class="flex gap-3 items-start text-sm text-slate-600"><span class="flex-none w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold border border-slate-200">${i+1}</span><span>${s}</span></li>`).join('');
+            document.getElementById('modalTitle').innerText = p.title;
+            document.getElementById('modalDesc').innerText = p.desc;
+            document.getElementById('modalKPI').innerText = p.kpi;
+            document.getElementById('modalRAB').innerText = p.rab;
+            document.getElementById('modalPIC').innerText = p.pic;
+            document.getElementById('modalLoc').innerText = p.loc;
+            document.getElementById('modalTags').innerHTML = `<span class="px-2 py-1 bg-${c}-100 text-${c}-700 rounded text-xs font-bold uppercase">${p.pillar}</span>`;
+            
+            const sMap = { 'todo': ['bg-slate-100 text-slate-600', 'Rencana'], 'doing': ['bg-blue-100 text-blue-700', 'Sedang Berjalan'], 'done': ['bg-emerald-100 text-emerald-700', 'Selesai'] };
+            const sStyle = sMap[p.status || 'todo'];
+            document.getElementById('viewStatusBadge').className = `px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${sStyle[0]}`;
+            document.getElementById('viewStatusBadge').innerText = sStyle[1];
 
-            // Edit
-            document.getElementById('editTitle').value = data.title;
-            document.getElementById('editDesc').value = data.desc;
-            document.getElementById('editKPI').value = data.kpi;
-            document.getElementById('editRAB').value = data.rab;
-            document.getElementById('editPIC').value = data.pic;
-            document.getElementById('editLoc').value = data.loc;
-            document.getElementById('editSteps').value = (data.steps || []).join('\n');
+            document.getElementById('modalSteps').innerHTML = (p.steps || []).map((s, i) => `<li class="flex gap-3 items-start text-sm text-slate-600"><span class="flex-none w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold border border-slate-200">${i+1}</span><span>${s}</span></li>`).join('');
+
+            document.getElementById('editTitle').value = p.title;
+            document.getElementById('editDesc').value = p.desc;
+            document.getElementById('editKPI').value = p.kpi;
+            document.getElementById('editRAB').value = p.rab;
+            document.getElementById('editPIC').value = p.pic;
+            document.getElementById('editLoc').value = p.loc;
+            document.getElementById('editSteps').value = (p.steps || []).join('\n');
+            document.getElementById('editStatus').value = p.status || 'todo'; 
 
             toggleEditMode(false);
             const modal = document.getElementById('programModal');
@@ -526,24 +684,40 @@
 
         function saveChanges() {
             if (currentEditId === null) return;
-            const index = programKerja.findIndex(p => p.id === currentEditId);
-            if (index !== -1) {
-                programKerja[index].title = document.getElementById('editTitle').value;
-                programKerja[index].desc = document.getElementById('editDesc').value;
-                programKerja[index].kpi = document.getElementById('editKPI').value;
-                programKerja[index].rab = document.getElementById('editRAB').value;
-                programKerja[index].pic = document.getElementById('editPIC').value;
-                programKerja[index].loc = document.getElementById('editLoc').value;
-                programKerja[index].steps = document.getElementById('editSteps').value.split('\n').filter(s => s.trim() !== '');
+            const idx = programKerja.findIndex(p => p.id === currentEditId);
+            if (idx !== -1) {
+                programKerja[idx].title = document.getElementById('editTitle').value;
+                programKerja[idx].desc = document.getElementById('editDesc').value;
+                programKerja[idx].kpi = document.getElementById('editKPI').value;
+                programKerja[idx].rab = document.getElementById('editRAB').value;
+                programKerja[idx].pic = document.getElementById('editPIC').value;
+                programKerja[idx].loc = document.getElementById('editLoc').value;
+                programKerja[idx].steps = document.getElementById('editSteps').value.split('\n').filter(s => s.trim() !== '');
+                programKerja[idx].status = document.getElementById('editStatus').value; 
                 
                 openProgramDetail(currentEditId);
-                saveDataToCloud(); // Save to Google Sheet
+                saveDataToCloud();
             }
+        }
+
+        // --- NEW GUIDE FUNCTIONS ---
+        function openGuide() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.remove('hidden', 'pointer-events-none', 'opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+        }
+        function closeGuide() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
         // --- UTILS ---
         function switchView(viewName) {
-            ['dashboard', 'roadmap', 'drive'].forEach(v => {
+            ['dashboard', 'kanban', 'roadmap', 'drive'].forEach(v => {
                 document.getElementById(`view-${v}`).style.opacity = '0';
                 document.getElementById(`view-${v}`).style.pointerEvents = 'none';
                 document.getElementById(`btn-${v}`).classList.remove('active');
@@ -575,8 +749,7 @@
             else renderRoadmap(programKerja.filter(p => p.pillar === type || (type==='Kesehatan' && p.pillar==='Sosial')));
         }
         function renderDriveSidebar() {
-            const container = document.getElementById('driveSidebar');
-            container.innerHTML = driveFolders.map(f => `<div onclick="loadDriveFolder('${f.id}', '${f.name}')" class="folder-item cursor-pointer p-3 border-l-4 border-transparent hover:bg-slate-50 transition flex items-center gap-3 group"><i class="fas ${f.icon} text-slate-400 group-hover:text-cpi-600 text-lg w-6 text-center"></i><div class="overflow-hidden"><h3 class="text-xs font-bold text-slate-700 truncate">${f.name}</h3><p class="text-[10px] text-slate-400 truncate">${f.label}</p></div></div>`).join('');
+            document.getElementById('driveSidebar').innerHTML = driveFolders.map(f => `<div onclick="loadDriveFolder('${f.id}', '${f.name}')" class="folder-item cursor-pointer p-3 border-l-4 border-transparent hover:bg-slate-50 transition flex items-center gap-3 group"><i class="fas ${f.icon} text-slate-400 group-hover:text-cpi-600 text-lg w-6 text-center"></i><div class="overflow-hidden"><h3 class="text-xs font-bold text-slate-700 truncate">${f.name}</h3><p class="text-[10px] text-slate-400 truncate">${f.label}</p></div></div>`).join('');
             if(driveFolders.length > 0) loadDriveFolder(driveFolders[0].id, driveFolders[0].name);
         }
         function loadDriveFolder(id, name) {
@@ -588,7 +761,10 @@
             frame.src = `https://drive.google.com/embeddedfolderview?id=${id}#list`;
             frame.onload = () => { loader.classList.add('hidden'); frame.classList.remove('hidden'); };
         }
-        window.onclick = function(e) { if(e.target == document.getElementById('programModal')) closeModal(); }
+        window.onclick = function(e) { 
+            if(e.target == document.getElementById('programModal')) closeModal(); 
+            if(e.target == document.getElementById('guideModal')) closeGuide(); 
+        }
     </script>
 </body>
 </html>
