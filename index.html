@@ -71,6 +71,21 @@
             .timeline-dot { left: 20px; }
             .timeline-item:nth-child(odd) .timeline-content::after { left: -10px; right: auto; border-width: 10px 10px 10px 0; border-color: transparent white transparent transparent; }
         }
+
+        /* CALENDAR STYLES */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background-color: #e2e8f0; border: 1px solid #e2e8f0; border-radius: 0.5rem; overflow: hidden; }
+        .calendar-header { background-color: #f8fafc; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; padding: 0.5rem; text-align: center; }
+        .calendar-day { background-color: white; min-height: 80px; padding: 4px; position: relative; transition: background 0.2s; }
+        .calendar-day:hover { background-color: #f8fafc; }
+        .day-number { font-size: 0.75rem; font-weight: 600; color: #475569; position: absolute; top: 4px; right: 6px; }
+        .calendar-day.empty { background-color: #f8fafc; }
+        .event-marker { font-size: 0.6rem; padding: 2px 4px; margin-bottom: 2px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; font-weight: 500; }
+        
+        /* Event Types Colors */
+        .marker-plan { background-color: #dbeafe; color: #1e40af; border-left: 2px solid #3b82f6; } /* Planning (Blue) */
+        .marker-exec { background-color: #d1fae5; color: #065f46; border-left: 2px solid #10b981; font-weight: 700; } /* Execution (Green) */
+        .marker-eval { background-color: #fee2e2; color: #991b1b; border-left: 2px solid #ef4444; } /* Eval (Red) */
+
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased h-screen flex flex-col overflow-hidden pb-16 md:pb-0">
@@ -141,7 +156,7 @@
             </div>
         </div>
 
-        <!-- VIEW 2: KANBAN (DUAL CONTROL VALIDATION) -->
+        <!-- VIEW 2: KANBAN -->
         <div id="view-kanban" class="absolute inset-0 overflow-y-auto p-4 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
             <div class="max-w-7xl mx-auto h-full flex flex-col pb-20">
                 <div class="mb-4">
@@ -168,22 +183,47 @@
             </div>
         </div>
 
-        <!-- VIEW 3: ROADMAP -->
+        <!-- VIEW 3: ROADMAP (FULL CALENDAR) -->
         <div id="view-roadmap" class="absolute inset-0 overflow-y-auto p-4 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
             <div class="max-w-7xl mx-auto space-y-6 pb-20">
                 <div class="flex flex-col gap-4 border-b border-slate-200 pb-4">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-calendar-alt text-cpi-600"></i> Kalender</h2>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-calendar-alt text-cpi-600"></i> Kalender Kegiatan</h2>
                         <button onclick="openGuide()" class="px-3 py-1.5 text-[10px] font-bold rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 hover:bg-indigo-200 transition shadow-sm animate-pulse"><i class="fas fa-book-open mr-1"></i> Panduan</button>
                     </div>
-                    <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                        <button onclick="filterProgram('all')" class="whitespace-nowrap px-3 py-1 text-xs font-bold rounded-full bg-slate-800 text-white">Semua</button>
-                        <button onclick="filterProgram('Pendidikan')" class="whitespace-nowrap px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-700">Pendidikan</button>
-                        <button onclick="filterProgram('Kesehatan')" class="whitespace-nowrap px-3 py-1 text-xs font-bold rounded-full bg-rose-100 text-rose-700">Kesehatan</button>
-                        <button onclick="filterProgram('Lingkungan')" class="whitespace-nowrap px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">Lingkungan</button>
+                    
+                    <!-- Month Navigation -->
+                    <div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-full text-slate-600"><i class="fas fa-chevron-left"></i></button>
+                        <h3 class="font-bold text-lg text-cpi-700 uppercase tracking-wide" id="currentMonthYear">Januari 2026</h3>
+                        <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-full text-slate-600"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="programGrid"></div>
+
+                <!-- Calendar Grid -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <!-- Days Header -->
+                    <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
+                        <div class="calendar-header text-red-500">Min</div>
+                        <div class="calendar-header">Sen</div>
+                        <div class="calendar-header">Sel</div>
+                        <div class="calendar-header">Rab</div>
+                        <div class="calendar-header">Kam</div>
+                        <div class="calendar-header">Jum</div>
+                        <div class="calendar-header">Sab</div>
+                    </div>
+                    <!-- Days Body -->
+                    <div class="calendar-grid" id="calendarDays">
+                        <!-- JS Will Inject Days Here -->
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-4 text-xs text-slate-600 justify-center bg-white p-3 rounded-lg border border-slate-200">
+                    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-100 border-l-2 border-blue-500"></span> Perencanaan (H-14)</div>
+                    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-100 border-l-2 border-emerald-500"></span> Pelaksanaan (H)</div>
+                    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-100 border-l-2 border-red-500"></span> Evaluasi (H+7)</div>
+                </div>
             </div>
         </div>
 
@@ -205,7 +245,7 @@
             </main>
         </div>
 
-        <!-- GUIDE MODAL (FULL CONTENT) -->
+        <!-- GUIDE MODAL -->
         <div id="guideModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-2 md:p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col transform transition-all scale-95 overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
@@ -249,7 +289,7 @@
             </div>
         </div>
 
-        <!-- MODAL PROGRAM DETAIL (EDIT WITH DUAL CONTROL) -->
+        <!-- MODAL PROGRAM DETAIL -->
         <div id="programModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg h-auto max-h-[90vh] flex flex-col transform transition-all scale-95 overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
@@ -261,25 +301,10 @@
                     <div id="content-view" class="space-y-4">
                         <div class="flex justify-between items-center"><div class="flex gap-2" id="modalTags"></div><div id="viewStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border"></div></div>
                         <div class="bg-blue-50 p-3 rounded-lg border border-blue-100"><p class="text-xs text-slate-600 leading-relaxed" id="modalDesc">Deskripsi...</p></div>
-                        
-                        <!-- DUAL CONTROL VALIDATION DISPLAY -->
                         <div class="grid grid-cols-2 gap-2 text-xs mb-2">
-                            <div class="p-2 border rounded bg-slate-50">
-                                <div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Pengawas (SPV)</div>
-                                <div class="flex items-center justify-between">
-                                    <span id="viewSuperPic" class="font-bold text-cpi-700">-</span>
-                                    <span id="checkSuper" class="text-slate-300"><i class="far fa-circle"></i></span>
-                                </div>
-                            </div>
-                            <div class="p-2 border rounded bg-slate-50">
-                                <div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Pelaksana Harian (Exec)</div>
-                                <div class="flex items-center justify-between">
-                                    <span id="viewExecPic" class="font-bold text-cpi-700">-</span>
-                                    <span id="checkExec" class="text-slate-300"><i class="far fa-circle"></i></span>
-                                </div>
-                            </div>
+                            <div class="p-2 border rounded bg-slate-50"><div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Pengawas (SPV)</div><div class="flex items-center justify-between"><span id="viewSuperPic" class="font-bold text-cpi-700">-</span><span id="checkSuper" class="text-slate-300"><i class="far fa-circle"></i></span></div></div>
+                            <div class="p-2 border rounded bg-slate-50"><div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Pelaksana Harian (Exec)</div><div class="flex items-center justify-between"><span id="viewExecPic" class="font-bold text-cpi-700">-</span><span id="checkExec" class="text-slate-300"><i class="far fa-circle"></i></span></div></div>
                         </div>
-
                         <div class="grid grid-cols-2 gap-2 text-xs">
                             <div class="p-2 border rounded"><strong>KPI:</strong> <span id="modalKPI">-</span></div>
                             <div class="p-2 border rounded bg-yellow-50"><strong>RAB:</strong> <span id="modalRAB" class="text-yellow-700 font-bold">-</span></div>
@@ -287,26 +312,17 @@
                         </div>
                         <div class="text-xs"><strong class="block mb-1">Tahapan:</strong><ul class="space-y-1 pl-0" id="modalSteps"></ul></div>
                     </div>
-
-                    <!-- Edit Form with Validation Checkboxes -->
                     <div id="content-edit" class="space-y-3 hidden">
-                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100">
-                            <label class="text-[10px] font-bold text-indigo-700 uppercase block mb-1">Status Progres</label>
-                            <select id="editStatus" class="w-full border rounded p-1 text-xs"><option value="todo">Rencana</option><option value="doing">Berjalan</option><option value="done">Selesai</option></select>
+                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100"><label class="text-[10px] font-bold text-indigo-700 uppercase block mb-1">Status Progres</label><select id="editStatus" class="w-full border rounded p-1 text-xs"><option value="todo">Rencana</option><option value="doing">Berjalan</option><option value="done">Selesai</option></select></div>
+                        <div class="grid grid-cols-2 gap-2 bg-yellow-50 p-2 rounded border border-yellow-100">
+                            <div><label class="text-[9px] font-bold text-slate-500 uppercase block">Validasi SPV</label><input type="text" id="editSuperPic" class="edit-input text-xs mb-1" placeholder="Nama SPV"><div class="flex items-center gap-1"><input type="checkbox" id="editCheckSuper"> <span class="text-[9px]">Approved</span></div></div>
+                            <div><label class="text-[9px] font-bold text-slate-500 uppercase block">Validasi Exec</label><input type="text" id="editExecPic" class="edit-input text-xs mb-1" placeholder="Nama Exec"><div class="flex items-center gap-1"><input type="checkbox" id="editCheckExec"> <span class="text-[9px]">Approved</span></div></div>
                         </div>
                         
-                        <!-- Dual Validation Inputs -->
-                        <div class="grid grid-cols-2 gap-2 bg-yellow-50 p-2 rounded border border-yellow-100">
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-500 uppercase block">Validasi SPV</label>
-                                <input type="text" id="editSuperPic" class="edit-input text-xs mb-1" placeholder="Nama SPV">
-                                <div class="flex items-center gap-1"><input type="checkbox" id="editCheckSuper"> <span class="text-[9px]">Approved</span></div>
-                            </div>
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-500 uppercase block">Validasi Exec</label>
-                                <input type="text" id="editExecPic" class="edit-input text-xs mb-1" placeholder="Nama Exec">
-                                <div class="flex items-center gap-1"><input type="checkbox" id="editCheckExec"> <span class="text-[9px]">Approved</span></div>
-                            </div>
+                        <!-- DATE & MONTH EDITOR -->
+                        <div class="grid grid-cols-2 gap-2">
+                             <div><label class="text-[10px] font-bold text-slate-500 uppercase">Tanggal</label><input type="date" id="editDate" class="edit-input text-xs" onchange="autoUpdateMonth()"></div>
+                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Bulan (Auto)</label><input type="text" id="editMonth" class="edit-input text-xs bg-gray-100" readonly></div>
                         </div>
 
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase">Deskripsi</label><textarea id="editDesc" rows="2" class="edit-input text-xs"></textarea></div>
@@ -318,6 +334,7 @@
                     <span class="text-[9px] text-slate-400 italic" id="edit-hint">*Auto-save.</span>
                     <div class="flex gap-2">
                         <button id="btn-cancel" onclick="toggleEditMode(false)" class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded hidden">Batal</button>
+                        <button id="btn-delete" onclick="deleteProgram()" class="px-3 py-1.5 text-xs font-bold bg-red-50 text-red-600 border border-red-200 rounded hidden hover:bg-red-100"><i class="fas fa-trash"></i></button>
                         <button id="btn-edit" onclick="toggleEditMode(true)" class="px-3 py-1.5 text-xs font-bold bg-white border text-slate-700 rounded shadow-sm"><i class="fas fa-edit mr-1"></i> Edit</button>
                         <button id="btn-save" onclick="saveChanges()" class="px-3 py-1.5 text-xs font-bold bg-green-600 text-white rounded shadow hidden"><i class="fas fa-save mr-1"></i> Simpan</button>
                     </div>
@@ -329,10 +346,12 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxt87Vpeg8rhvf0cRj22-N95qGAshGt5J3sqceEUkAnnQJUmnIBY-T2yarIH646zWCC/exec"; 
-        const fallbackData = [{ id: 1, status: 'todo', month: 'Januari', date: '17 Jan', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', pic_super: 'Divisi Safety', pic_exec: 'Relawan A', valid_super: false, valid_exec: false, loc: 'Online', steps: ['Siap Alat'] }];
+        const fallbackData = [{ id: 1, status: 'todo', month: 'Januari', date: '17', fullDate: '2026-01-17', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', pic_super: 'Divisi Safety', pic_exec: 'Relawan A', valid_super: false, valid_exec: false, loc: 'Online', steps: ['Siap Alat'] }];
         let programKerja = []; let currentEditId = null;
         
-        // Drive Data
+        let currentMonth = 0; // Jan 2026
+        const monthsName = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
         const driveStructure = [
             { id: 'root_00', name: '00. Legalitas', icon: 'fa-balance-scale', children: [{ id: '1dCTcYgSlOgWD5fW6dY8Wfxd1IQE-J44C', name: '00.01 Pendirian' }, { id: '1mvhu5ix98mn-f-kovtpEhSV9UEVOG4dz', name: '00.02 Perizinan' }] },
             { id: 'root_01', name: '01. Tata Kelola', icon: 'fa-sitemap', children: [{ id: '1OQNeISfkxxsurR8FWwScWNJI_HoLQEJf', name: '01.01 SK Pengurus' }, { id: '12P_8zrqq8AFPPZ5DS9QjPu2-_dIzxzsE', name: '01.02 Notulensi' }, { id: '1Z_XybabgHgjzel67I0PJZx3r5U-O2SJm', name: '01.03 SOP' }, { id: '1WAcMV8DVo-0jGoIjm2LyuhEQ2kmfOYx6', name: '01.04 AD/ART' }] },
@@ -367,63 +386,67 @@
         }
         
         function forceSync() { if(confirm("Sync data?")) saveDataToCloud(); }
-        function refreshUI() { updateDashboard(); renderRoadmap(programKerja); renderKanban(); renderTimeline(); }
+        function refreshUI() { updateDashboard(); renderCalendar(); renderKanban(); renderTimeline(); }
         function showLoader(show) { document.getElementById('cloud-loader').className = show ? 'fixed inset-0 z-[70] flex flex-col items-center justify-center' : 'hidden'; }
-        
-        function setStatus(text, color) {
-            const el = document.getElementById('status-indicator');
-            el.className = `flex items-center gap-1 bg-${color}-50 px-2 py-1 rounded border border-${color}-200`;
-            el.innerHTML = `<div class="w-2 h-2 rounded-full bg-${color}-500 ${['yellow','green'].includes(color)?'animate-pulse':''}"></div><span class="text-[10px] font-bold text-${color}-700 hidden md:inline">${text}</span>`;
-        }
+        function setStatus(text, color) { document.getElementById('status-indicator').innerHTML = `<div class="w-2 h-2 rounded-full bg-${color}-500 animate-pulse"></div><span class="text-[10px] font-bold text-${color}-700 hidden md:inline">${text}</span>`; }
 
         function updateDashboard() {
             const total = programKerja.length; let done = 0;
             programKerja.forEach(p => { if(p.status === 'done') done++; });
             document.getElementById('dashTotal').innerText = total; document.getElementById('dashDone').innerText = done;
-            
-            // Charts Logic
             const pCounts = {'Pendidikan':0,'Kesehatan':0,'Lingkungan':0,'Internal':0};
             const sCounts = {'done':0,'doing':0,'todo':0};
             programKerja.forEach(p => {
                 let k = p.pillar; if(k==='Sosial') k='Kesehatan'; if(pCounts[k]!==undefined) pCounts[k]++;
                 if(sCounts[p.status]!==undefined) sCounts[p.status]++;
             });
-
             const ctx1 = document.getElementById('pillarChart').getContext('2d');
             if(window.pillarChart instanceof Chart) window.pillarChart.destroy();
             window.pillarChart = new Chart(ctx1, { type: 'doughnut', data: { labels: Object.keys(pCounts), datasets: [{ data: Object.values(pCounts), backgroundColor: ['#3b82f6','#f43f5e','#10b981','#64748b'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}} } });
-
             const ctx2 = document.getElementById('statusChart').getContext('2d');
             if(window.statusChart instanceof Chart) window.statusChart.destroy();
             window.statusChart = new Chart(ctx2, { type: 'pie', data: { labels: ['Selesai','Berjalan','Rencana'], datasets: [{ data: [sCounts.done, sCounts.doing, sCounts.todo], backgroundColor: ['#10b981','#a855f7','#cbd5e1'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}} } });
         }
 
-        // CREATIVE TIMELINE RENDERER
+        // FULL CALENDAR LOGIC
+        function changeMonth(delta) {
+            currentMonth += delta; if(currentMonth < 0) currentMonth = 0; if(currentMonth > 11) currentMonth = 11;
+            renderCalendar();
+        }
+        function renderCalendar() {
+            const mName = monthsName[currentMonth]; const year = 2026;
+            document.getElementById('currentMonthYear').innerText = `${mName} ${year}`;
+            const firstDay = new Date(year, currentMonth, 1).getDay();
+            const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
+            const container = document.getElementById('calendarDays'); container.innerHTML = '';
+            
+            for(let i=0; i<firstDay; i++) container.innerHTML += `<div class="calendar-day bg-slate-50/50"></div>`;
+            for(let d=1; d<=daysInMonth; d++) {
+                let html = `<div class="calendar-day"><span class="text-xs font-bold text-slate-400 absolute top-1 right-2">${d}</span><div class="mt-4 space-y-1">`;
+                // Logic: 14 days before = Planning, Day H = Exec, +7 days = Eval
+                // Only approximate based on stored 'date' (day number) or fullDate
+                programKerja.forEach(p => {
+                    if(p.month === mName) {
+                        let dayH = parseInt(p.date); // Simple fallback
+                        if(p.fullDate) dayH = new Date(p.fullDate).getDate();
+
+                        if(dayH === d) html += `<div class="event-marker marker-exec" onclick="openProgramDetail(${p.id})">HARI H: ${p.title}</div>`;
+                        if(dayH - 14 === d) html += `<div class="event-marker marker-plan" onclick="openProgramDetail(${p.id})">PLAN: ${p.title}</div>`;
+                        if(dayH + 7 === d) html += `<div class="event-marker marker-eval" onclick="openProgramDetail(${p.id})">EVAL: ${p.title}</div>`;
+                    }
+                });
+                html += `</div></div>`;
+                container.innerHTML += html;
+            }
+        }
+
         function renderTimeline() {
             const container = document.getElementById('creativeTimeline');
-            const monthsOrder = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-            const sortedData = [...programKerja].sort((a,b) => {
-                return monthsOrder.indexOf(a.month) - monthsOrder.indexOf(b.month);
-            });
-
-            container.innerHTML = '<div class="timeline-line"></div>' + sortedData.map((p, index) => {
-                const cMap = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'};
-                const color = cMap[p.pillar] || 'slate';
-                const icons = {'Pendidikan':'fa-graduation-cap','Kesehatan':'fa-heartbeat','Lingkungan':'fa-leaf','Internal':'fa-users','Sosial':'fa-hand-holding-heart'};
-                const icon = icons[p.pillar] || 'fa-star';
-                
-                return `
-                <div class="timeline-item group" onclick="openProgramDetail(${p.id})">
-                    <div class="timeline-dot bg-${color}-600"><i class="fas ${icon}"></i></div>
-                    <div class="timeline-content border-l-4 border-l-${color}-500">
-                        <div class="flex justify-between mb-1">
-                            <span class="text-[10px] font-bold text-${color}-600 uppercase tracking-widest">${p.month}</span>
-                            <span class="text-[9px] bg-slate-100 px-2 py-0.5 rounded text-slate-500">${p.date}</span>
-                        </div>
-                        <h4 class="font-bold text-sm text-slate-800 leading-tight mb-1 group-hover:text-${color}-600 transition">${p.title}</h4>
-                        <p class="text-xs text-slate-500 line-clamp-2">${p.desc}</p>
-                    </div>
-                </div>`;
+            const sortedData = [...programKerja].sort((a,b) => monthsName.indexOf(a.month) - monthsName.indexOf(b.month));
+            container.innerHTML = '<div class="timeline-line"></div>' + sortedData.map((p) => {
+                const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar] || 'slate';
+                const i = {'Pendidikan':'fa-graduation-cap','Kesehatan':'fa-heartbeat','Lingkungan':'fa-leaf','Internal':'fa-users','Sosial':'fa-hand-holding-heart'}[p.pillar] || 'fa-star';
+                return `<div class="timeline-item group" onclick="openProgramDetail(${p.id})"><div class="timeline-dot bg-${c}-600"><i class="fas ${i}"></i></div><div class="timeline-content border-l-4 border-l-${c}-500"><div class="flex justify-between mb-1"><span class="text-[10px] font-bold text-${c}-600 uppercase tracking-widest">${p.month}</span><span class="text-[9px] bg-slate-100 px-2 py-0.5 rounded text-slate-500">${p.date}</span></div><h4 class="font-bold text-sm text-slate-800 leading-tight mb-1 group-hover:text-${c}-600 transition">${p.title}</h4><p class="text-xs text-slate-500 line-clamp-2">${p.desc}</p></div></div>`;
             }).join('');
         }
 
@@ -431,46 +454,18 @@
             const cols = { todo: document.getElementById('kanban-todo'), doing: document.getElementById('kanban-doing'), done: document.getElementById('kanban-done') };
             Object.values(cols).forEach(c => c.innerHTML = '');
             const counts = { todo:0, doing:0, done:0 };
-            
             programKerja.forEach(p => {
                 const st = p.status || 'todo'; counts[st]++;
                 const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar] || 'slate';
-                
-                // Initials
-                const initSuper = (p.pic_super || '?').substring(0,2).toUpperCase();
-                const initExec = (p.pic_exec || '?').substring(0,2).toUpperCase();
-                
-                // Double Check Icon Logic
-                let checkIcon = '';
-                if(p.valid_super && p.valid_exec) checkIcon = '<i class="fas fa-check-double text-emerald-500 ml-1 text-[10px]"></i>';
-                else if(p.valid_super || p.valid_exec) checkIcon = '<i class="fas fa-check text-blue-500 ml-1 text-[10px]"></i>';
-
+                const initSuper = (p.pic_super || '?').substring(0,2).toUpperCase(); const initExec = (p.pic_exec || '?').substring(0,2).toUpperCase();
+                let checkIcon = ''; if(p.valid_super && p.valid_exec) checkIcon = '<i class="fas fa-check-double text-emerald-500 ml-1 text-[10px]"></i>'; else if(p.valid_super||p.valid_exec) checkIcon = '<i class="fas fa-check text-blue-500 ml-1 text-[10px]"></i>';
                 const card = document.createElement('div');
                 card.className = `kanban-card bg-white p-2 rounded shadow-sm border-l-4 border-${c}-500`;
-                card.innerHTML = `
-                    <div class="flex justify-between mb-1"><span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span></div>
-                    <h4 class="font-bold text-xs text-slate-800 mb-1 leading-tight">${p.title} ${checkIcon}</h4>
-                    <div class="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-1 mt-1">
-                        <div class="flex gap-1">
-                             <span class="w-4 h-4 rounded-full ${p.valid_super ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500' : 'bg-slate-200 text-slate-600'} flex items-center justify-center text-[8px] font-bold" title="SPV: ${p.pic_super}">${initSuper}</span>
-                             <span class="w-4 h-4 rounded-full ${p.valid_exec ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500' : 'bg-orange-100 text-orange-600'} flex items-center justify-center text-[8px] font-bold" title="Exec: ${p.pic_exec}">${initExec}</span>
-                        </div>
-                        <i class="far fa-edit text-slate-300 hover:text-cpi-600"></i>
-                    </div>`;
+                card.innerHTML = `<div class="flex justify-between mb-1"><span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span><span class="text-[9px] text-slate-400">${p.month}</span></div><h4 class="font-bold text-xs text-slate-800 mb-1 leading-tight">${p.title} ${checkIcon}</h4><div class="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-1 mt-1"><div class="flex gap-1"><span class="w-4 h-4 rounded-full ${p.valid_super?'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500':'bg-slate-200 text-slate-600'} flex items-center justify-center text-[8px] font-bold" title="SPV">${initSuper}</span><span class="w-4 h-4 rounded-full ${p.valid_exec?'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500':'bg-orange-100 text-orange-600'} flex items-center justify-center text-[8px] font-bold" title="EXEC">${initExec}</span></div><i class="far fa-edit text-slate-300 hover:text-cpi-600"></i></div>`;
                 card.onclick = () => openProgramDetail(p.id);
-                if(cols[st]) cols[st].appendChild(card);
+                cols[st].appendChild(card);
             });
             document.getElementById('count-todo').innerText = counts.todo; document.getElementById('count-doing').innerText = counts.doing; document.getElementById('count-done').innerText = counts.done;
-        }
-
-        function renderRoadmap(data) {
-            const container = document.getElementById('programGrid');
-            const cMap = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'};
-            container.innerHTML = data.map(p => {
-                const c = cMap[p.pillar] || 'slate';
-                let icon = ''; if(p.status==='done') icon='<span class="absolute top-2 right-2 text-emerald-500 bg-white rounded-full p-1 shadow text-xs"><i class="fas fa-check-circle"></i></span>';
-                return `<div class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition cursor-pointer group flex flex-col h-full relative overflow-hidden" onclick="openProgramDetail(${p.id})">${icon}<div class="h-1.5 w-full bg-${c}-500"></div><div class="p-3 flex-1 flex flex-col"><div class="mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border">${p.month}</span></div><h3 class="font-bold text-slate-800 text-sm mb-1 group-hover:text-cpi-600 leading-snug">${p.title}</h3><p class="text-xs text-slate-600 line-clamp-2">${p.desc}</p></div></div>`;
-            }).join('');
         }
 
         function openProgramDetail(id) {
@@ -479,53 +474,67 @@
             document.getElementById('modalTitle').innerText = p.title; document.getElementById('modalDesc').innerText = p.desc;
             document.getElementById('modalKPI').innerText = p.kpi; document.getElementById('modalRAB').innerText = p.rab;
             document.getElementById('modalLoc').innerText = p.loc;
-            
             document.getElementById('viewSuperPic').innerText = p.pic_super || '-';
             document.getElementById('checkSuper').innerHTML = p.valid_super ? '<i class="fas fa-check-circle text-emerald-500"></i>' : '<i class="far fa-circle text-slate-300"></i>';
-            
             document.getElementById('viewExecPic').innerText = p.pic_exec || '-';
             document.getElementById('checkExec').innerHTML = p.valid_exec ? '<i class="fas fa-check-circle text-emerald-500"></i>' : '<i class="far fa-circle text-slate-300"></i>';
-
             document.getElementById('modalTags').innerHTML = `<span class="px-2 py-0.5 bg-${c}-100 text-${c}-700 rounded text-[10px] font-bold uppercase">${p.pillar}</span>`;
             const sMap = {'todo':['bg-slate-100 text-slate-600','Rencana'],'doing':['bg-blue-100 text-blue-700','Berjalan'],'done':['bg-emerald-100 text-emerald-700','Selesai']};
             const sStyle = sMap[p.status||'todo'];
             const badge = document.getElementById('viewStatusBadge'); badge.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${sStyle[0]}`; badge.innerText = sStyle[1];
             document.getElementById('modalSteps').innerHTML = (p.steps||[]).map((s,i) => `<li class="flex gap-2 items-start text-xs text-slate-600"><span class="flex-none w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-bold border">${i+1}</span><span>${s}</span></li>`).join('');
             
-            // Edit Form Population
             document.getElementById('editTitle').value = p.title; document.getElementById('editDesc').value = p.desc;
             document.getElementById('editKPI').value = p.kpi; document.getElementById('editRAB').value = p.rab;
-            document.getElementById('editSuperPic').value = p.pic_super || ''; 
-            document.getElementById('editExecPic').value = p.pic_exec || '';
-            document.getElementById('editCheckSuper').checked = p.valid_super || false;
-            document.getElementById('editCheckExec').checked = p.valid_exec || false;
-            
+            document.getElementById('editSuperPic').value = p.pic_super || ''; document.getElementById('editExecPic').value = p.pic_exec || '';
+            document.getElementById('editCheckSuper').checked = p.valid_super || false; document.getElementById('editCheckExec').checked = p.valid_exec || false;
             document.getElementById('editLoc').value = p.loc; document.getElementById('editSteps').value = (p.steps||[]).join('\n'); document.getElementById('editStatus').value = p.status||'todo';
             
+            // Date
+            let dVal = ''; if(p.fullDate) dVal = p.fullDate; 
+            else if(p.date) { 
+                const d = parseInt(p.date); 
+                const m = monthsName.indexOf(p.month);
+                if(!isNaN(d) && m > -1) dVal = `2026-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            }
+            document.getElementById('editDate').value = dVal;
+            document.getElementById('editMonth').value = p.month || '';
+
             toggleEditMode(false);
             const m = document.getElementById('programModal'); m.classList.remove('hidden','pointer-events-none','opacity-0'); m.querySelector('div').classList.add('scale-100'); document.body.classList.add('modal-active');
+        }
+
+        function autoUpdateMonth() {
+            const dVal = document.getElementById('editDate').value;
+            if(dVal) {
+                const dt = new Date(dVal);
+                document.getElementById('editMonth').value = monthsName[dt.getMonth()];
+            }
+        }
+
+        function deleteProgram() {
+            if(currentEditId !== null && confirm("Hapus permanen?")) {
+                programKerja = programKerja.filter(p => p.id !== currentEditId);
+                closeModal(); saveDataToCloud();
+            }
         }
 
         function saveChanges() {
             if(currentEditId===null) return; const idx = programKerja.findIndex(p=>p.id===currentEditId); if(idx!==-1){
                 programKerja[idx].title = document.getElementById('editTitle').value; programKerja[idx].desc = document.getElementById('editDesc').value;
                 programKerja[idx].kpi = document.getElementById('editKPI').value; programKerja[idx].rab = document.getElementById('editRAB').value;
-                
-                // PIC & Validation Logic
-                programKerja[idx].pic_super = document.getElementById('editSuperPic').value; 
-                programKerja[idx].pic_exec = document.getElementById('editExecPic').value;
-                programKerja[idx].valid_super = document.getElementById('editCheckSuper').checked;
-                programKerja[idx].valid_exec = document.getElementById('editCheckExec').checked;
-
+                programKerja[idx].pic_super = document.getElementById('editSuperPic').value; programKerja[idx].pic_exec = document.getElementById('editExecPic').value;
+                programKerja[idx].valid_super = document.getElementById('editCheckSuper').checked; programKerja[idx].valid_exec = document.getElementById('editCheckExec').checked;
                 programKerja[idx].loc = document.getElementById('editLoc').value; programKerja[idx].steps = document.getElementById('editSteps').value.split('\n').filter(s=>s.trim()!=='');
+                programKerja[idx].status = document.getElementById('editStatus').value;
                 
-                // Auto status update based on double check
-                let newStatus = document.getElementById('editStatus').value;
-                if(programKerja[idx].valid_super && programKerja[idx].valid_exec && newStatus !== 'done') {
-                    // Optional: Auto move to done if both valid? For now let user decide or just highlight.
+                const dVal = document.getElementById('editDate').value;
+                if(dVal) {
+                    programKerja[idx].fullDate = dVal;
+                    programKerja[idx].date = new Date(dVal).getDate().toString();
+                    programKerja[idx].month = document.getElementById('editMonth').value;
                 }
-                programKerja[idx].status = newStatus;
-
+                
                 openProgramDetail(currentEditId); saveDataToCloud();
             }
         }
@@ -539,12 +548,14 @@
             const ae = document.getElementById(`view-${v}`); ae.style.opacity = '1'; ae.style.pointerEvents = 'auto'; ae.style.zIndex = '20';
             const ad = document.getElementById(`btn-${v}`); if(ad) ad.classList.add('active');
             const am = document.getElementById(`mob-${v}`); if(am) am.classList.add('active');
+            if(v === 'roadmap') renderCalendar();
         }
 
         function toggleEditMode(e) {
             document.getElementById('header-view').classList.toggle('hidden', e); document.getElementById('header-edit').classList.toggle('hidden', !e);
             document.getElementById('content-view').classList.toggle('hidden', e); document.getElementById('content-edit').classList.toggle('hidden', !e);
-            document.getElementById('btn-edit').classList.toggle('hidden', e); document.getElementById('btn-save').classList.toggle('hidden', !e); document.getElementById('btn-cancel').classList.toggle('hidden', !e);
+            document.getElementById('btn-edit').classList.toggle('hidden', e); document.getElementById('btn-save').classList.toggle('hidden', !e);
+            document.getElementById('btn-cancel').classList.toggle('hidden', !e); document.getElementById('btn-delete').classList.toggle('hidden', !e);
         }
         function closeModal() { const m = document.getElementById('programModal'); m.classList.add('opacity-0','pointer-events-none'); setTimeout(()=>m.classList.add('hidden'),300); document.body.classList.remove('modal-active'); }
         function openGuide() { const m = document.getElementById('guideModal'); m.classList.remove('hidden','pointer-events-none','opacity-0'); m.querySelector('div').classList.add('scale-100'); }
