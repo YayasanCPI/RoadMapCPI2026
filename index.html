@@ -50,6 +50,8 @@
         .mobile-nav-btn:not(.active) { color: #94a3b8; }
 
         .folder-item.active { background-color: #e0f2fe; color: #0369a1; border-right: 3px solid #0369a1; }
+        .subfolder-item.active { color: #0369a1; font-weight: 700; background-color: #f1f5f9; }
+        
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow: hidden; }
         .edit-input { width: 100%; border: 1px solid #cbd5e1; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; }
@@ -259,12 +261,12 @@
             </div>
         </div>
 
-        <!-- VIEW 4: DRIVE (Mobile Stacked) -->
+        <!-- VIEW 4: DRIVE (Mobile Stacked - UPDATED WITH SUBFOLDERS) -->
         <div id="view-drive" class="absolute inset-0 flex flex-col md:flex-row transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50 pb-16 md:pb-0">
             <!-- Sidebar -->
-            <aside class="w-full md:w-64 bg-white border-b md:border-r border-slate-200 flex flex-col shadow-lg z-20 flex-none h-1/3 md:h-full">
+            <aside class="w-full md:w-80 bg-white border-b md:border-r border-slate-200 flex flex-col shadow-lg z-20 flex-none h-1/3 md:h-full">
                 <div class="p-3 border-b border-slate-100 bg-slate-50">
-                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Folder</h2>
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Folder Arsip</h2>
                 </div>
                 <div class="flex-1 overflow-y-auto py-2 space-y-1" id="driveSidebar"></div>
             </aside>
@@ -291,38 +293,100 @@
             </main>
         </div>
 
-        <!-- GUIDE MODAL -->
-        <div id="guideModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-4">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl h-[85vh] flex flex-col transform transition-all scale-95 overflow-hidden">
+        <!-- GUIDE MODAL (FULL CONTENT FROM REPORT) -->
+        <div id="guideModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-2 md:p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col transform transition-all scale-95 overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
-                    <h3 class="font-bold text-base text-slate-800"><i class="fas fa-atlas text-cpi-600 mr-2"></i> Panduan 2026</h3>
+                    <h3 class="font-bold text-sm md:text-lg text-slate-800 flex items-center">
+                        <i class="fas fa-atlas text-cpi-600 mr-2"></i> Panduan Strategis 2026
+                    </h3>
                     <button onclick="closeGuide()" class="text-slate-400 hover:text-red-500 p-2"><i class="fas fa-times text-lg"></i></button>
                 </div>
                 <div class="p-5 overflow-y-auto prose prose-sm prose-slate max-w-none bg-white">
-                    <div class="mb-4 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
-                        <p class="text-xs text-indigo-700 m-0">Ringkasan Eksekutif Strategi Yayasan CPI 2026.</p>
+                    
+                    <h2 class="text-center text-cpi-800 font-bold mb-6">Laporan Strategis: Rencana Induk & Pemetaan Kalender Kegiatan Yayasan Cakrawala Peduli Indonesia Tahun 2026</h2>
+                    
+                    <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-lg mb-6">
+                        <h4 class="text-indigo-800 font-bold m-0 mb-1">Ringkasan Eksekutif</h4>
+                        <p class="text-xs text-indigo-900 m-0">
+                            Tahun 2026 ditetapkan PBB sebagai <strong>International Year of Volunteers</strong>. Ini adalah momentum bagi Yayasan CPI untuk memobilisasi <em>engineering expertise</em> alumni tambang melalui 3 Pilar: Pendidikan, Kesehatan, dan Lingkungan.
+                        </p>
                     </div>
-                    <!-- Content Simplified for Mobile View -->
-                    <h4 class="text-cpi-700">1. Tiga Pilar Utama</h4>
-                    <ul class="text-xs">
-                        <li><strong>Pendidikan:</strong> Beasiswa Anak Tambang & Mining Goes to School.</li>
-                        <li><strong>Kesehatan:</strong> K3 Masuk Desa & Cegah Stunting.</li>
-                        <li><strong>Lingkungan:</strong> Edukasi Sampah (Kemarau) & Tanam Pohon (Hujan).</li>
+
+                    <h3>Bab 1: Landasan Strategis & Mandat Tiga Pilar</h3>
+                    <p>Strategi 2026 berakar pada integritas sosial dan kontribusi nyata bagi masyarakat lingkar tambang. Keunggulan komparatif yayasan adalah basis anggota dengan latar belakang teknis pertambangan.</p>
+                    <ul>
+                        <li><strong>Pilar 1: Cakrawala Peduli Pendidikan</strong><br>Bukan sekadar dana tunai, tapi pendampingan intelektual (transfer of knowledge) dari praktisi tambang ke dunia pendidikan formal.</li>
+                        <li><strong>Pilar 2: Cakrawala Peduli Kesehatan</strong><br>Pendekatan preventif: Isu stunting di lingkar tambang dan budaya K3 (Keselamatan Kerja) yang ditularkan ke rumah tangga.</li>
+                        <li><strong>Pilar 3: Cakrawala Peduli Lingkungan</strong><br>Konservasi berbasis sains (science-based). Rehabilitasi lahan kritis dengan metode teruji, bukan sekadar simbolis.</li>
                     </ul>
-                    <h4 class="text-cpi-700">2. Momen Kunci 2026</h4>
-                    <ul class="text-xs">
-                        <li><strong>Januari:</strong> Bulan K3 (Safety Webinar).</li>
-                        <li><strong>April:</strong> Hari Bumi (Launching Beasiswa).</li>
-                        <li><strong>September:</strong> Hari Pertambangan (Gala Dinner).</li>
-                        <li><strong>November:</strong> Hari Menanam Pohon (Mass Planting).</li>
+
+                    <h4>Konteks Global: IVY 2026</h4>
+                    <p>Tema: <strong>"Mining Engineers for Nation"</strong>. Kontribusi alumni tidak hanya uang, tapi waktu dan tenaga ahli. Program harus "CSR-ready" (auditabel) untuk mendukung penilaian PROPER perusahaan mitra.</p>
+
+                    <hr>
+
+                    <h3>Bab 2: Peta Jalan Strategis Pilar Lingkungan</h3>
+                    <p><strong>Masalah:</strong> Penanaman pohon sering mati jika dilakukan saat Hari Bumi (April) atau Hari Lingkungan (Juni) karena masuk musim kemarau.</p>
+                    <p><strong>Strategi:</strong></p>
+                    <ul>
+                        <li><strong>Fase Edukasi (Jan-Jun):</strong> Fokus manajemen sampah & bersih-bersih (Coastal Clean Up).</li>
+                        <li><strong>Fase Penanaman (Nov-Des):</strong> Penanaman massal dilakukan November (Hari Menanam Pohon) saat awal musim hujan untuk survival rate tinggi.</li>
                     </ul>
-                    <h4 class="text-cpi-700">3. Strategi Operasional</h4>
-                    <p class="text-xs">Proposal CSR harus masuk Agt-Sep 2025. Gunakan sistem poin untuk relawan.</p>
+
+                    <h3>Bab 3: Peta Jalan Strategis Pilar Kesehatan</h3>
+                    <ul>
+                        <li><strong>K3 Masuk Desa (Januari):</strong> Edukasi bahaya listrik & kebakaran dapur bagi warga desa.</li>
+                        <li><strong>Intervensi Gizi:</strong> Bermitra dengan Posyandu untuk PMT protein hewani cegah stunting.</li>
+                    </ul>
+
+                    <h3>Bab 4: Peta Jalan Strategis Pilar Pendidikan</h3>
+                    <ul>
+                        <li><strong>Beasiswa "Anak Tambang":</strong> Penggalangan dana mulai Maret, seleksi Mei, distribusi Juli (Tahun Ajaran Baru).</li>
+                        <li><strong>Mining Goes to School:</strong> Alumni kembali ke sekolah (Mei/Hardiknas) untuk motivasi STEM.</li>
+                    </ul>
+
+                    <hr>
+
+                    <h3>Bab 5: Pemetaan Kalender Kegiatan 2026</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-xs border">
+                            <thead class="bg-slate-100">
+                                <tr><th class="p-2 border">Bulan</th><th class="p-2 border">Momen</th><th class="p-2 border">Kegiatan Unggulan</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="p-2 border">Januari</td><td class="p-2 border">Bulan K3</td><td class="p-2 border font-bold">Webinar: Safety Begins at Home</td></tr>
+                                <tr><td class="p-2 border">Februari</td><td class="p-2 border">Hari Sampah</td><td class="p-2 border font-bold">Kampanye Zero Waste Mining Family</td></tr>
+                                <tr><td class="p-2 border">Maret</td><td class="p-2 border">Ramadhan</td><td class="p-2 border font-bold">Charity Ramadhan & Air Bersih</td></tr>
+                                <tr><td class="p-2 border">April</td><td class="p-2 border">Hari Bumi</td><td class="p-2 border font-bold">Peluncuran Beasiswa 2026</td></tr>
+                                <tr><td class="p-2 border">Mei</td><td class="p-2 border">Hardiknas</td><td class="p-2 border font-bold">Roadshow: Mining Goes to School</td></tr>
+                                <tr><td class="p-2 border">Juni</td><td class="p-2 border">Hari Lingkungan</td><td class="p-2 border font-bold">Aksi Bersih Pantai (Coastal Clean Up)</td></tr>
+                                <tr><td class="p-2 border">Juli</td><td class="p-2 border">Hari Anak</td><td class="p-2 border font-bold">Distribusi Beasiswa & Paket Gizi</td></tr>
+                                <tr><td class="p-2 border">Agustus</td><td class="p-2 border">HUT RI</td><td class="p-2 border font-bold">Donor Darah Merdeka</td></tr>
+                                <tr><td class="p-2 border bg-yellow-50">September</td><td class="p-2 border bg-yellow-50">Hari Tambang</td><td class="p-2 border bg-yellow-50 font-bold text-cpi-700">Gala Dinner: Mining for Life (Golden Moment)</td></tr>
+                                <tr><td class="p-2 border">Oktober</td><td class="p-2 border">Mental Health</td><td class="p-2 border font-bold">Webinar: Mental Health in Mining</td></tr>
+                                <tr><td class="p-2 border">November</td><td class="p-2 border">Hari Menanam</td><td class="p-2 border font-bold">The Great Planting (Hutan Alumni)</td></tr>
+                                <tr><td class="p-2 border">Desember</td><td class="p-2 border">Volunteer Day</td><td class="p-2 border font-bold">Volunteer Appreciation Night</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+
+                    <h3>Bab 6: Strategi Operasional</h3>
+                    <ul>
+                        <li><strong>Fundraising CSR:</strong> Proposal 2026 harus masuk ke perusahaan tambang pada Agustus-September 2025 (sebelum budget locked).</li>
+                        <li><strong>Badan Usaha:</strong> Jual merchandise eksklusif di event Mining Indonesia (September).</li>
+                        <li><strong>Manajemen Relawan:</strong> Sistem poin untuk apresiasi partisipasi alumni.</li>
+                    </ul>
+
+                    <h3>Bab 7: Penutup</h3>
+                    <p>Kunci keberhasilan peta jalan ini adalah persiapan yang disiplin. Kegiatan besar seperti Gala Dinner September bukanlah pekerjaan satu malam, melainkan kulminasi perencanaan sejak Januari.</p>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL EDIT -->
+        <!-- MODAL EDIT (WITH PIC) -->
         <div id="programModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg h-auto max-h-[90vh] flex flex-col transform transition-all scale-95 overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
@@ -343,12 +407,22 @@
                         <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
                             <p class="text-xs text-slate-600 leading-relaxed" id="modalDesc">Deskripsi...</p>
                         </div>
+                        
+                        <!-- PIC INFO -->
                         <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="p-2 border rounded">
+                                <div class="text-[9px] text-slate-400 uppercase font-bold">PIC Pengawas</div>
+                                <div id="viewSuperPic" class="font-bold text-cpi-700 flex items-center gap-1"></div>
+                            </div>
+                            <div class="p-2 border rounded">
+                                <div class="text-[9px] text-slate-400 uppercase font-bold">PIC Harian</div>
+                                <div id="viewExecPic" class="font-bold text-cpi-700 flex items-center gap-1"></div>
+                            </div>
                             <div class="p-2 border rounded"><strong>KPI:</strong> <span id="modalKPI">-</span></div>
                             <div class="p-2 border rounded bg-yellow-50"><strong>RAB:</strong> <span id="modalRAB" class="text-yellow-700 font-bold">-</span></div>
-                            <div class="p-2 border rounded"><strong>PIC:</strong> <span id="modalPIC">-</span></div>
                             <div class="p-2 border rounded"><strong>Loc:</strong> <span id="modalLoc">-</span></div>
                         </div>
+
                         <div class="text-xs">
                             <strong class="block mb-1">Tahapan:</strong>
                             <ul class="space-y-1 pl-0" id="modalSteps"></ul>
@@ -360,11 +434,22 @@
                             <label class="text-[10px] font-bold text-indigo-700 uppercase block mb-1">Status</label>
                             <select id="editStatus" class="w-full border rounded p-1 text-xs"><option value="todo">Rencana</option><option value="doing">Berjalan</option><option value="done">Selesai</option></select>
                         </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 uppercase">PIC Pengawas</label>
+                                <input type="text" id="editSuperPic" class="edit-input text-xs" placeholder="Nama Supervisor">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 uppercase">PIC Harian</label>
+                                <input type="text" id="editExecPic" class="edit-input text-xs" placeholder="Nama Exec/Daily">
+                            </div>
+                        </div>
+
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase">Deskripsi</label><textarea id="editDesc" rows="2" class="edit-input text-xs"></textarea></div>
                         <div class="grid grid-cols-2 gap-2">
                             <div><label class="text-[10px] font-bold text-slate-500 uppercase">KPI</label><input type="text" id="editKPI" class="edit-input text-xs"></div>
                             <div><label class="text-[10px] font-bold text-slate-500 uppercase">RAB</label><input type="text" id="editRAB" class="edit-input text-xs font-mono"></div>
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">PIC</label><input type="text" id="editPIC" class="edit-input text-xs"></div>
                             <div><label class="text-[10px] font-bold text-slate-500 uppercase">Lokasi</label><input type="text" id="editLoc" class="edit-input text-xs"></div>
                         </div>
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase">Tahapan</label><textarea id="editSteps" rows="3" class="edit-input text-xs"></textarea></div>
@@ -385,17 +470,73 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxt87Vpeg8rhvf0cRj22-N95qGAshGt5J3sqceEUkAnnQJUmnIBY-T2yarIH646zWCC/exec"; 
-        const fallbackData = [{ id: 1, status: 'todo', month: 'Januari', date: '17 Jan', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', pic: 'Safety', loc: 'Online', steps: ['Siap Alat'] }];
+        const fallbackData = [{ id: 1, status: 'todo', month: 'Januari', date: '17 Jan', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', pic_super: 'Divisi Safety', pic_exec: 'Relawan A', loc: 'Online', steps: ['Siap Alat'] }];
         
         let programKerja = [];
         let currentEditId = null;
-        const driveFolders = [
-            { id: '1Sz2agx1xvHRoEhAcC49VQdd7PoHFEKNL', name: '00_LEGALITAS', label: 'Legal', icon: 'fa-balance-scale' },
-            { id: '1jcZl0QggxXLe2QGP0QW_hheb-wD9NMGR', name: '01_TATA_KELOLA', label: 'Gov', icon: 'fa-sitemap' },
-            { id: '16_CeR7Af7G4XD96Fklg19Ke_9cwTg3A1', name: '02_PROGRAM', label: 'COE', icon: 'fa-briefcase' },
-            { id: '1QhOoFYmzzMkW_nQTFs5pLOoIegi8EmU-', name: '03_KEUANGAN', label: 'Fin', icon: 'fa-chart-line' },
-            { id: '1QhQBtvV57A8zSJSnZsB5EWKHb1MhXx7w', name: '04_KESEKRETARIATAN', label: 'Admin', icon: 'fa-user-tie' },
-            { id: '1mxXAXIkZzwSj1-CHGPfaEtL7TYZepl2d', name: '05_MEDIA', label: 'Pub', icon: 'fa-bullhorn' }
+        
+        // --- UPDATED DRIVE STRUCTURE WITH SUBFOLDERS ---
+        const driveStructure = [
+            {
+                id: 'root_00',
+                name: '00. Legalitas & Pendirian',
+                icon: 'fa-balance-scale',
+                children: [
+                    { id: '1dCTcYgSlOgWD5fW6dY8Wfxd1IQE-J44C', name: '00.01 Pendirian Yayasan' },
+                    { id: '1mvhu5ix98mn-f-kovtpEhSV9UEVOG4dz', name: '00.02 Perizinan & Identitas' }
+                ]
+            },
+            {
+                id: 'root_01',
+                name: '01. Tata Kelola Organisasi',
+                icon: 'fa-sitemap',
+                children: [
+                    { id: '1OQNeISfkxxsurR8FWwScWNJI_HoLQEJf', name: '01.01 SK Kepengurusan' },
+                    { id: '12P_8zrqq8AFPPZ5DS9QjPu2-_dIzxzsE', name: '01.02 Rapat & Notulensi' },
+                    { id: '1Z_XybabgHgjzel67I0PJZx3r5U-O2SJm', name: '01.03 SOP & Peraturan' },
+                    { id: '1WAcMV8DVo-0jGoIjm2LyuhEQ2kmfOYx6', name: '01.04 AD & ART CPI' }
+                ]
+            },
+            {
+                id: 'root_02',
+                name: '02. Program Kerja (COE)',
+                icon: 'fa-briefcase',
+                children: [
+                    { id: '13qk0jrORF0IAhsSL0nH2ulTpWqr4CFi6', name: '02.01 Divisi Lingkungan' },
+                    { id: '1aFRPAnGsafW4thaiajLAfYy1EFowwtuu', name: '02.02 Divisi Pendidikan' },
+                    { id: '1-jZRcI5VtrViNliI_79ex-2CtX4qqJjl', name: '02.03 Divisi Kesehatan' }
+                ]
+            },
+            {
+                id: 'root_03',
+                name: '03. Keuangan & Fundraising',
+                icon: 'fa-chart-line',
+                children: [
+                    { id: '1LudtpQOs9_ZuzMFBmzdG1drvoDTq8Zx-', name: '03.01 Donasi Internal' },
+                    { id: '1gEZFWhpcggFYz8AWM5SbvAUOWm_08G6J', name: '03.02 Dana CSR Kemitraan' },
+                    { id: '1Jk27UsT8o4Ciq2rsZjIeq6k0IkUmexWX', name: '03.03 Unit Usaha' },
+                    { id: '1xypdtuK9Xf8Wuq5lRPG3lzPohe53d6NX', name: '03.04 Laporan & Audit' }
+                ]
+            },
+            {
+                id: 'root_04',
+                name: '04. Kesekretariatan & HR',
+                icon: 'fa-user-tie',
+                children: [
+                    { id: '1kkcNmW4LkCI5G6Pk4kQWWE5U7Wc6LYJS', name: '04.01 Surat Masuk' },
+                    { id: '1RSxeB8o-9cMi8n5cAmUboE1FVo4Rm47L', name: '04.02 Surat Keluar' },
+                    { id: '1tPUy7ANiuLyvR8hGPUw63JBJS9EGizYF', name: '04.03 Database Relawan' }
+                ]
+            },
+            {
+                id: 'root_05',
+                name: '05. Media & Dokumentasi',
+                icon: 'fa-bullhorn',
+                children: [
+                    { id: '1itUpV-0J3fvAEmBG47NHaa6LHS8kikOS', name: '05.01 Aset Visual' },
+                    { id: '1gX4UXrPT5nQgzkkOQosMoQSC0igiHNNJ', name: '05.02 Dokumentasi Kegiatan' }
+                ]
+            }
         ];
 
         window.addEventListener('DOMContentLoaded', () => { fetchData(); renderDriveSidebar(); });
@@ -464,9 +605,29 @@
             programKerja.forEach(p => {
                 const st = p.status || 'todo'; counts[st]++;
                 const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar] || 'slate';
+                
+                // Initials for Avatar
+                const initSuper = (p.pic_super || '?').substring(0,2).toUpperCase();
+                const initExec = (p.pic_exec || '?').substring(0,2).toUpperCase();
+                // Validation Icon
+                const validIcon = st === 'done' ? '<i class="fas fa-check-circle text-emerald-500 ml-1"></i>' : '';
+
                 const card = document.createElement('div');
                 card.className = `kanban-card bg-white p-2 rounded shadow-sm border-l-4 border-${c}-500`;
-                card.innerHTML = `<div class="flex justify-between items-start mb-1"><span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span><span class="text-[9px] text-slate-400">${p.month}</span></div><h4 class="font-bold text-xs text-slate-800 mb-1">${p.title}</h4><div class="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-1"><span>${p.pic}</span><i class="far fa-edit"></i></div>`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span>
+                        <span class="text-[9px] text-slate-400">${p.month}</span>
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-800 mb-1 leading-tight">${p.title} ${validIcon}</h4>
+                    <div class="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-1 mt-1">
+                        <div class="flex items-center gap-1">
+                            <span class="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-600" title="Supervisor: ${p.pic_super}">${initSuper}</span>
+                            <span class="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center text-[8px] font-bold text-orange-600" title="Pelaksana: ${p.pic_exec}">${initExec}</span>
+                        </div>
+                        <i class="far fa-edit text-slate-300 hover:text-cpi-600"></i>
+                    </div>
+                `;
                 card.onclick = () => openProgramDetail(p.id);
                 if(cols[st]) cols[st].appendChild(card);
             });
@@ -489,7 +650,12 @@
             const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar];
             document.getElementById('modalTitle').innerText = p.title; document.getElementById('modalDesc').innerText = p.desc;
             document.getElementById('modalKPI').innerText = p.kpi; document.getElementById('modalRAB').innerText = p.rab;
-            document.getElementById('modalPIC').innerText = p.pic; document.getElementById('modalLoc').innerText = p.loc;
+            document.getElementById('modalLoc').innerText = p.loc;
+            
+            // Populate PIC
+            document.getElementById('viewSuperPic').innerHTML = `<span class="w-4 h-4 rounded-full bg-cpi-100 flex items-center justify-center text-[8px] font-bold">S</span> <span>${p.pic_super || '-'}</span>`;
+            document.getElementById('viewExecPic').innerHTML = `<span class="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center text-[8px] text-orange-600 font-bold">E</span> <span>${p.pic_exec || '-'}</span>`;
+
             document.getElementById('modalTags').innerHTML = `<span class="px-2 py-0.5 bg-${c}-100 text-${c}-700 rounded text-[10px] font-bold uppercase">${p.pillar}</span>`;
             const sMap = {'todo':['bg-slate-100 text-slate-600','Rencana'],'doing':['bg-blue-100 text-blue-700','Berjalan'],'done':['bg-emerald-100 text-emerald-700','Selesai']};
             const sStyle = sMap[p.status||'todo'];
@@ -498,7 +664,9 @@
             
             document.getElementById('editTitle').value = p.title; document.getElementById('editDesc').value = p.desc;
             document.getElementById('editKPI').value = p.kpi; document.getElementById('editRAB').value = p.rab;
-            document.getElementById('editPIC').value = p.pic; document.getElementById('editLoc').value = p.loc;
+            document.getElementById('editSuperPic').value = p.pic_super || ''; 
+            document.getElementById('editExecPic').value = p.pic_exec || '';
+            document.getElementById('editLoc').value = p.loc;
             document.getElementById('editSteps').value = (p.steps||[]).join('\n'); document.getElementById('editStatus').value = p.status||'todo';
             toggleEditMode(false);
             const modal = document.getElementById('programModal');
@@ -511,7 +679,9 @@
             if(currentEditId===null) return; const idx = programKerja.findIndex(p=>p.id===currentEditId); if(idx!==-1){
                 programKerja[idx].title = document.getElementById('editTitle').value; programKerja[idx].desc = document.getElementById('editDesc').value;
                 programKerja[idx].kpi = document.getElementById('editKPI').value; programKerja[idx].rab = document.getElementById('editRAB').value;
-                programKerja[idx].pic = document.getElementById('editPIC').value; programKerja[idx].loc = document.getElementById('editLoc').value;
+                programKerja[idx].pic_super = document.getElementById('editSuperPic').value; 
+                programKerja[idx].pic_exec = document.getElementById('editExecPic').value; 
+                programKerja[idx].loc = document.getElementById('editLoc').value;
                 programKerja[idx].steps = document.getElementById('editSteps').value.split('\n').filter(s=>s.trim()!=='');
                 programKerja[idx].status = document.getElementById('editStatus').value;
                 openProgramDetail(currentEditId); saveDataToCloud();
@@ -540,12 +710,49 @@
         function closeGuide() { const m = document.getElementById('guideModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
         function filterProgram(t) { if(t==='all') renderRoadmap(programKerja); else renderRoadmap(programKerja.filter(p=>p.pillar===t||(t==='Kesehatan'&&p.pillar==='Sosial'))); }
         
-        function renderDriveSidebar() { document.getElementById('driveSidebar').innerHTML = driveFolders.map(f => `<div onclick="loadDriveFolder('${f.id}', '${f.name}')" class="folder-item cursor-pointer p-2 border-l-4 border-transparent hover:bg-slate-50 flex items-center gap-2 group"><i class="fas ${f.icon} text-slate-400 text-sm w-5 text-center"></i><div class="overflow-hidden"><h3 class="text-xs font-bold text-slate-700 truncate">${f.name}</h3></div></div>`).join(''); if(driveFolders.length) loadDriveFolder(driveFolders[0].id, driveFolders[0].name); }
-        function loadDriveFolder(id, name) {
-            document.getElementById('driveFolderTitle').innerText = name; document.getElementById('driveExternalLink').href = `https://drive.google.com/drive/folders/${id}?usp=drive_link`;
-            const f = document.getElementById('driveFrame'); f.classList.add('hidden'); document.getElementById('driveLoader').classList.remove('hidden');
-            f.src = `https://drive.google.com/embeddedfolderview?id=${id}#list`; f.onload = () => { document.getElementById('driveLoader').classList.add('hidden'); f.classList.remove('hidden'); };
+        function renderDriveSidebar() { 
+            const container = document.getElementById('driveSidebar');
+            container.innerHTML = driveStructure.map((root, idx) => `
+                <div class="mb-3">
+                    <div class="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fas ${root.icon}"></i> ${root.name}
+                    </div>
+                    <div class="space-y-0.5">
+                        ${root.children.map(child => `
+                            <div onclick="loadDriveFolder('${child.id}', '${child.name}')" 
+                                 class="folder-item cursor-pointer px-4 py-2 hover:bg-blue-50 text-slate-600 text-xs font-medium flex items-center gap-2 transition group border-l-4 border-transparent hover:border-cpi-500">
+                                <i class="far fa-folder text-yellow-500 group-hover:scale-110 transition"></i>
+                                <span class="truncate">${child.name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Load first folder by default
+            if(driveStructure.length > 0 && driveStructure[0].children.length > 0) {
+                loadDriveFolder(driveStructure[0].children[0].id, driveStructure[0].children[0].name);
+            }
         }
+
+        function loadDriveFolder(id, name) {
+            document.getElementById('driveFolderTitle').innerText = name; 
+            document.getElementById('driveExternalLink').href = `https://drive.google.com/drive/folders/${id}?usp=drive_link`;
+            
+            // UI Active State
+            document.querySelectorAll('.folder-item').forEach(el => {
+                if(el.innerText.includes(name)) el.classList.add('bg-blue-50', 'text-cpi-700', 'border-cpi-500');
+                else el.classList.remove('bg-blue-50', 'text-cpi-700', 'border-cpi-500');
+            });
+
+            const f = document.getElementById('driveFrame'); 
+            f.classList.add('hidden'); 
+            document.getElementById('driveLoader').classList.remove('hidden');
+            
+            f.src = `https://drive.google.com/embeddedfolderview?id=${id}#list`; 
+            f.onload = () => { document.getElementById('driveLoader').classList.add('hidden'); f.classList.remove('hidden'); };
+        }
+        
         window.onclick = function(e) { if(e.target==document.getElementById('programModal')) closeModal(); if(e.target==document.getElementById('guideModal')) closeGuide(); }
     </script>
 </body>
