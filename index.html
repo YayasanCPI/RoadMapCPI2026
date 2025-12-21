@@ -12,6 +12,10 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- PDF Generation Libraries (New) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -22,13 +26,8 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        cpi: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e' },
-                        gold: { 500: '#d97706', 600: '#b45309' }
-                    }
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: { cpi: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e' }, gold: { 500: '#d97706', 600: '#b45309' } }
                 }
             }
         }
@@ -53,7 +52,7 @@
         .edit-input { width: 100%; border: 1px solid #cbd5e1; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; }
         .edit-input:focus { outline: none; border-color: #0369a1; ring: 2px solid #e0f2fe; }
 
-        /* TIMELINE STYLES */
+        /* TIMELINE & CALENDAR */
         .timeline-container { position: relative; padding: 20px 0; }
         .timeline-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #e2e8f0; transform: translateX(-50%); border-radius: 2px; }
         .timeline-item { position: relative; margin-bottom: 40px; width: 100%; display: flex; justify-content: center; align-items: center; }
@@ -64,28 +63,17 @@
         .timeline-item:nth-child(even) .timeline-content { margin-left: auto; margin-right: 0; text-align: left; }
         .timeline-item:nth-child(odd) .timeline-content::after { content: ''; position: absolute; right: -10px; top: 15px; border-width: 10px 0 10px 10px; border-color: transparent transparent transparent white; }
         .timeline-item:nth-child(even) .timeline-content::after { content: ''; position: absolute; left: -10px; top: 15px; border-width: 10px 10px 10px 0; border-color: transparent white transparent transparent; }
-        @media (max-width: 768px) {
-            .timeline-line { left: 20px; }
-            .timeline-item { justify-content: flex-start; padding-left: 50px; }
-            .timeline-content { width: 100%; text-align: left !important; }
-            .timeline-dot { left: 20px; }
-            .timeline-item:nth-child(odd) .timeline-content::after { left: -10px; right: auto; border-width: 10px 10px 10px 0; border-color: transparent white transparent transparent; }
-        }
+        @media (max-width: 768px) { .timeline-line { left: 20px; } .timeline-item { justify-content: flex-start; padding-left: 50px; } .timeline-content { width: 100%; text-align: left !important; } .timeline-dot { left: 20px; } .timeline-item:nth-child(odd) .timeline-content::after { left: -10px; right: auto; border-width: 10px 10px 10px 0; border-color: transparent white transparent transparent; } }
 
-        /* CALENDAR STYLES */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background-color: #e2e8f0; border: 1px solid #e2e8f0; border-radius: 0.5rem; overflow: hidden; }
         .calendar-header { background-color: #f8fafc; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; padding: 0.5rem; text-align: center; }
         .calendar-day { background-color: white; min-height: 80px; padding: 4px; position: relative; transition: background 0.2s; }
         .calendar-day:hover { background-color: #f8fafc; }
         .day-number { font-size: 0.75rem; font-weight: 600; color: #475569; position: absolute; top: 4px; right: 6px; }
-        .calendar-day.empty { background-color: #f8fafc; }
         .event-marker { font-size: 0.6rem; padding: 2px 4px; margin-bottom: 2px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; font-weight: 500; }
-        
-        /* Event Types Colors */
-        .marker-plan { background-color: #dbeafe; color: #1e40af; border-left: 2px solid #3b82f6; } /* Planning (Blue) */
-        .marker-exec { background-color: #d1fae5; color: #065f46; border-left: 2px solid #10b981; font-weight: 700; } /* Execution (Green) */
-        .marker-eval { background-color: #fee2e2; color: #991b1b; border-left: 2px solid #ef4444; } /* Eval (Red) */
-
+        .marker-plan { background-color: #dbeafe; color: #1e40af; border-left: 2px solid #3b82f6; }
+        .marker-exec { background-color: #d1fae5; color: #065f46; border-left: 2px solid #10b981; font-weight: 700; }
+        .marker-eval { background-color: #fee2e2; color: #991b1b; border-left: 2px solid #ef4444; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased h-screen flex flex-col overflow-hidden pb-16 md:pb-0">
@@ -109,8 +97,10 @@
                         <p class="text-[9px] md:text-[10px] font-bold tracking-widest text-gold-600 uppercase">System 2026</p>
                     </div>
                 </div>
+                <!-- Menu -->
                 <div class="hidden md:flex bg-slate-100 p-1 rounded-lg gap-1">
                     <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2"><i class="fas fa-chart-pie"></i> Dashboard</button>
+                    <button onclick="switchView('finance')" id="btn-finance" class="nav-btn px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2"><i class="fas fa-wallet"></i> Keuangan</button>
                     <button onclick="switchView('kanban')" id="btn-kanban" class="nav-btn px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2"><i class="fas fa-columns"></i> Kanban</button>
                     <button onclick="switchView('roadmap')" id="btn-roadmap" class="nav-btn px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Kalender</button>
                     <button onclick="switchView('drive')" id="btn-drive" class="nav-btn px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2"><i class="fab fa-google-drive"></i> Arsip</button>
@@ -127,7 +117,8 @@
     <!-- MOBILE NAV -->
     <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 flex justify-around items-center h-16 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <button onclick="switchView('dashboard')" id="mob-dashboard" class="mobile-nav-btn active flex flex-col items-center justify-center w-full h-full"><i class="fas fa-chart-pie text-lg mb-1"></i><span class="text-[10px]">Dash</span></button>
-        <button onclick="switchView('kanban')" id="mob-kanban" class="mobile-nav-btn flex flex-col items-center justify-center w-full h-full"><i class="fas fa-columns text-lg mb-1"></i><span class="text-[10px]">Kanban</span></button>
+        <button onclick="switchView('finance')" id="mob-finance" class="mobile-nav-btn flex flex-col items-center justify-center w-full h-full"><i class="fas fa-wallet text-lg mb-1"></i><span class="text-[10px]">Kas</span></button>
+        <button onclick="switchView('kanban')" id="mob-kanban" class="mobile-nav-btn flex flex-col items-center justify-center w-full h-full"><i class="fas fa-columns text-lg mb-1"></i><span class="text-[10px]">Progres</span></button>
         <button onclick="switchView('roadmap')" id="mob-roadmap" class="mobile-nav-btn flex flex-col items-center justify-center w-full h-full"><i class="fas fa-calendar-alt text-lg mb-1"></i><span class="text-[10px]">Kalender</span></button>
         <button onclick="switchView('drive')" id="mob-drive" class="mobile-nav-btn flex flex-col items-center justify-center w-full h-full"><i class="fab fa-google-drive text-lg mb-1"></i><span class="text-[10px]">Arsip</span></button>
     </div>
@@ -156,34 +147,108 @@
             </div>
         </div>
 
-        <!-- VIEW 2: KANBAN -->
+        <!-- VIEW 2: KEUANGAN (UPDATED COA + PDF) -->
+        <div id="view-finance" class="absolute inset-0 overflow-y-auto p-4 md:p-6 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
+            <div class="max-w-5xl mx-auto space-y-6 pb-20">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-wallet text-cpi-600"></i> Buku Kas Umum</h2>
+                        <p class="text-xs text-slate-500 mt-1">Pencatatan sesuai Kode Akun Yayasan.</p>
+                    </div>
+                    <div class="flex gap-2">
+                         <button onclick="downloadReportPDF()" class="px-4 py-2 text-xs font-bold bg-white text-rose-600 border border-rose-200 rounded-lg shadow-sm hover:bg-rose-50 transition"><i class="fas fa-file-pdf mr-1"></i> Unduh Laporan</button>
+                        <button onclick="openFinanceModal()" class="px-4 py-2 text-xs font-bold bg-cpi-700 text-white rounded-lg shadow hover:bg-cpi-800 transition"><i class="fas fa-plus mr-1"></i> Catat Transaksi</button>
+                    </div>
+                </div>
+
+                <!-- Finance Cards -->
+                <div class="grid grid-cols-3 gap-3 md:gap-6">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">Total Masuk</div>
+                        <div class="text-lg md:text-2xl font-bold text-emerald-600" id="finIn">Rp 0</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-rose-500">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">Total Keluar</div>
+                        <div class="text-lg md:text-2xl font-bold text-rose-600" id="finOut">Rp 0</div>
+                    </div>
+                    <div class="bg-cpi-700 p-4 rounded-xl shadow-lg text-white">
+                        <div class="text-[10px] text-cpi-200 font-bold uppercase">Saldo Akhir</div>
+                        <div class="text-lg md:text-2xl font-bold" id="finBalance">Rp 0</div>
+                    </div>
+                </div>
+
+                <!-- Finance Chart -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-slate-700 text-sm">Grafik Arus Kas</h4>
+                    </div>
+                    <div class="h-64 relative"><canvas id="financeChart"></canvas></div>
+                </div>
+
+                <!-- Transaction List -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700 uppercase">Riwayat Transaksi (Jurnal)</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500">
+                                <tr>
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">No. Bukti</th>
+                                    <th class="p-3">Uraian</th>
+                                    <th class="p-3">Akun</th>
+                                    <th class="p-3 text-right">Nominal</th>
+                                    <th class="p-3 text-center">Status</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financeTableBody" class="divide-y divide-slate-100">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: KANBAN -->
         <div id="view-kanban" class="absolute inset-0 overflow-y-auto p-4 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
             <div class="max-w-7xl mx-auto h-full flex flex-col pb-20">
                 <div class="mb-4">
-                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-columns text-cpi-600"></i> Kontrol Ganda</h2>
-                    <p class="text-xs text-slate-500">Validasi wajib dari Pengawas & Pelaksana Harian.</p>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-columns text-cpi-600"></i> Papan Kontrol</h2>
+                    <p class="text-xs text-slate-500">Monitoring status pelaksanaan program dengan indikator visual.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- TODO -->
+                    <!-- KOLOM 1: RENCANA -->
                     <div class="kanban-col flex flex-col">
-                        <div class="p-3 border-b bg-slate-100 rounded-t-lg flex justify-between items-center"><h3 class="font-bold text-slate-600 text-xs uppercase"><i class="far fa-circle mr-2"></i> Rencana</h3><span class="bg-slate-200 px-2 rounded-full text-[10px]" id="count-todo">0</span></div>
+                        <div class="p-3 border-b bg-slate-100 rounded-t-lg flex justify-between items-center">
+                            <h3 class="font-bold text-slate-600 text-xs uppercase"><i class="far fa-circle mr-2"></i> Rencana</h3>
+                            <span class="bg-slate-200 px-2 rounded-full text-[10px]" id="count-todo">0</span>
+                        </div>
                         <div class="p-2 space-y-2" id="kanban-todo"></div>
                     </div>
-                    <!-- DOING -->
+                    
+                    <!-- KOLOM 2: BERJALAN -->
                     <div class="kanban-col flex flex-col border-t-4 border-blue-500">
-                        <div class="p-3 border-b bg-blue-50 rounded-t-lg flex justify-between items-center"><h3 class="font-bold text-blue-700 text-xs uppercase"><i class="fas fa-spinner fa-spin mr-2"></i> Berjalan</h3><span class="bg-blue-200 px-2 rounded-full text-[10px]" id="count-doing">0</span></div>
+                        <div class="p-3 border-b bg-blue-50 rounded-t-lg flex justify-between items-center">
+                            <h3 class="font-bold text-blue-700 text-xs uppercase"><i class="fas fa-spinner fa-spin mr-2"></i> Berjalan</h3>
+                            <span class="bg-blue-200 px-2 rounded-full text-[10px]" id="count-doing">0</span>
+                        </div>
                         <div class="p-2 space-y-2 bg-blue-50/30" id="kanban-doing"></div>
                     </div>
-                    <!-- DONE -->
+                    
+                    <!-- KOLOM 3: SELESAI/ARSIP -->
                     <div class="kanban-col flex flex-col border-t-4 border-emerald-500">
-                        <div class="p-3 border-b bg-emerald-50 rounded-t-lg flex justify-between items-center"><h3 class="font-bold text-emerald-700 text-xs uppercase"><i class="fas fa-check-circle mr-2"></i> Selesai (Valid)</h3><span class="bg-emerald-200 px-2 rounded-full text-[10px]" id="count-done">0</span></div>
+                        <div class="p-3 border-b bg-emerald-50 rounded-t-lg flex justify-between items-center">
+                            <h3 class="font-bold text-emerald-700 text-xs uppercase"><i class="fas fa-check-circle mr-2"></i> Selesai / Arsip</h3>
+                            <span class="bg-emerald-200 px-2 rounded-full text-[10px]" id="count-done">0</span>
+                        </div>
                         <div class="p-2 space-y-2 bg-emerald-50/30" id="kanban-done"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 3: ROADMAP (FULL CALENDAR) -->
+        <!-- VIEW 4: ROADMAP -->
         <div id="view-roadmap" class="absolute inset-0 overflow-y-auto p-4 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
             <div class="max-w-7xl mx-auto space-y-6 pb-20">
                 <div class="flex flex-col gap-4 border-b border-slate-200 pb-4">
@@ -191,34 +256,16 @@
                         <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-calendar-alt text-cpi-600"></i> Kalender Kegiatan</h2>
                         <button onclick="openGuide()" class="px-3 py-1.5 text-[10px] font-bold rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 hover:bg-indigo-200 transition shadow-sm animate-pulse"><i class="fas fa-book-open mr-1"></i> Panduan</button>
                     </div>
-                    
-                    <!-- Month Navigation -->
                     <div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm border border-slate-200">
                         <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-full text-slate-600"><i class="fas fa-chevron-left"></i></button>
                         <h3 class="font-bold text-lg text-cpi-700 uppercase tracking-wide" id="currentMonthYear">Januari 2026</h3>
                         <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-full text-slate-600"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
-
-                <!-- Calendar Grid -->
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <!-- Days Header -->
-                    <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
-                        <div class="calendar-header text-red-500">Min</div>
-                        <div class="calendar-header">Sen</div>
-                        <div class="calendar-header">Sel</div>
-                        <div class="calendar-header">Rab</div>
-                        <div class="calendar-header">Kam</div>
-                        <div class="calendar-header">Jum</div>
-                        <div class="calendar-header">Sab</div>
-                    </div>
-                    <!-- Days Body -->
-                    <div class="calendar-grid" id="calendarDays">
-                        <!-- JS Will Inject Days Here -->
-                    </div>
+                    <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50"><div class="calendar-header text-red-500">Min</div><div class="calendar-header">Sen</div><div class="calendar-header">Sel</div><div class="calendar-header">Rab</div><div class="calendar-header">Kam</div><div class="calendar-header">Jum</div><div class="calendar-header">Sab</div></div>
+                    <div class="calendar-grid" id="calendarDays"></div>
                 </div>
-
-                <!-- Legend -->
                 <div class="flex flex-wrap gap-4 text-xs text-slate-600 justify-center bg-white p-3 rounded-lg border border-slate-200">
                     <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-100 border-l-2 border-blue-500"></span> Perencanaan (H-14)</div>
                     <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-100 border-l-2 border-emerald-500"></span> Pelaksanaan (H)</div>
@@ -227,7 +274,7 @@
             </div>
         </div>
 
-        <!-- VIEW 4: DRIVE -->
+        <!-- VIEW 5: DRIVE -->
         <div id="view-drive" class="absolute inset-0 flex flex-col md:flex-row transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50 pb-16 md:pb-0">
             <aside class="w-full md:w-80 bg-white border-b md:border-r border-slate-200 flex flex-col shadow-lg z-20 flex-none h-1/3 md:h-full">
                 <div class="p-3 border-b border-slate-100 bg-slate-50"><h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Folder</h2></div>
@@ -253,43 +300,14 @@
                     <button onclick="closeGuide()" class="text-slate-400 hover:text-red-500 p-2"><i class="fas fa-times text-lg"></i></button>
                 </div>
                 <div class="p-5 overflow-y-auto prose prose-sm prose-slate max-w-none bg-white">
-                    <h2 class="text-center text-cpi-800 font-bold mb-6 text-xl">Laporan Strategis: Rencana Induk & Pemetaan Kalender Kegiatan Yayasan Cakrawala Peduli Indonesia Tahun 2026</h2>
-                    <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-lg mb-6">
-                        <h4 class="text-indigo-800 font-bold m-0 mb-2">Ringkasan Eksekutif</h4>
-                        <p class="text-xs md:text-sm text-indigo-900 m-0 text-justify">Tahun 2026 ditetapkan PBB sebagai <strong>International Year of Volunteers</strong>. Ini adalah momentum bagi Yayasan CPI untuk memobilisasi <em>engineering expertise</em> alumni tambang melalui 3 Pilar: Pendidikan, Kesehatan, dan Lingkungan.</p>
-                    </div>
-                    <h3>Bab 1: Landasan Strategis & Mandat Tiga Pilar</h3>
-                    <ul>
-                        <li><strong>Pilar 1: Pendidikan</strong><br>Transfer of knowledge dari praktisi tambang ke dunia pendidikan formal.</li>
-                        <li><strong>Pilar 2: Kesehatan</strong><br>Isu stunting & budaya K3 (Keselamatan Kerja) rumah tangga.</li>
-                        <li><strong>Pilar 3: Lingkungan</strong><br>Konservasi berbasis sains. Rehabilitasi lahan kritis metode teruji.</li>
-                    </ul>
-                    <hr>
-                    <h3>Bab 5: Pemetaan Kalender Kegiatan 2026</h3>
-                    <div class="overflow-x-auto border rounded-lg shadow-sm">
-                        <table class="min-w-full text-xs text-left">
-                            <thead class="bg-slate-100"><tr><th class="p-2 border">Bulan</th><th class="p-2 border">Kegiatan Unggulan</th><th class="p-2 border">Pilar</th></tr></thead>
-                            <tbody>
-                                <tr><td class="p-2 border">Januari</td><td class="p-2 border">Webinar: Safety Begins at Home</td><td class="p-2 border text-rose-600">Kesehatan</td></tr>
-                                <tr><td class="p-2 border">Februari</td><td class="p-2 border">Kampanye Zero Waste</td><td class="p-2 border text-emerald-600">Lingkungan</td></tr>
-                                <tr><td class="p-2 border">Maret</td><td class="p-2 border">Charity & Air Bersih</td><td class="p-2 border text-rose-600">Sosial</td></tr>
-                                <tr><td class="p-2 border">April</td><td class="p-2 border">Launching Beasiswa</td><td class="p-2 border text-blue-600">Pendidikan</td></tr>
-                                <tr><td class="p-2 border">Mei</td><td class="p-2 border">Mining Goes to School</td><td class="p-2 border text-blue-600">Pendidikan</td></tr>
-                                <tr><td class="p-2 border">Juni</td><td class="p-2 border">Coastal Clean Up</td><td class="p-2 border text-emerald-600">Lingkungan</td></tr>
-                                <tr><td class="p-2 border">Juli</td><td class="p-2 border">Distribusi Beasiswa</td><td class="p-2 border text-blue-600">Pendidikan</td></tr>
-                                <tr><td class="p-2 border">Agustus</td><td class="p-2 border">Donor Darah Merdeka</td><td class="p-2 border text-rose-600">Kesehatan</td></tr>
-                                <tr class="bg-yellow-50"><td class="p-2 border font-bold">September</td><td class="p-2 border font-bold">Gala Dinner: Mining for Life</td><td class="p-2 border">Internal</td></tr>
-                                <tr><td class="p-2 border">Oktober</td><td class="p-2 border">Webinar Mental Health</td><td class="p-2 border text-rose-600">Kesehatan</td></tr>
-                                <tr><td class="p-2 border">November</td><td class="p-2 border">The Great Planting</td><td class="p-2 border text-emerald-600">Lingkungan</td></tr>
-                                <tr><td class="p-2 border">Desember</td><td class="p-2 border">Volunteer Appreciation</td><td class="p-2 border text-slate-600">Internal</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h2 class="text-center">Laporan Strategis 2026</h2>
+                    <p>Ringkasan: Tahun 2026 adalah International Year of Volunteers. Fokus 3 Pilar: Pendidikan, Kesehatan, Lingkungan.</p>
+                    <p>(Konten lengkap sesuai dokumen word sebelumnya...)</p>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL PROGRAM DETAIL -->
+        <!-- PROGRAM EDIT MODAL (SIMPLIFIED & UPDATED) -->
         <div id="programModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg h-auto max-h-[90vh] flex flex-col transform transition-all scale-95 overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
@@ -299,40 +317,30 @@
                 </div>
                 <div class="p-4 overflow-y-auto space-y-4 flex-1">
                     <div id="content-view" class="space-y-4">
-                        <div class="flex justify-between items-center"><div class="flex gap-2" id="modalTags"></div><div id="viewStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border"></div></div>
-                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-100"><p class="text-xs text-slate-600 leading-relaxed" id="modalDesc">Deskripsi...</p></div>
-                        <div class="grid grid-cols-2 gap-2 text-xs mb-2">
-                            <div class="p-2 border rounded bg-slate-50"><div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Pengawas (SPV)</div><div class="flex items-center justify-between"><span id="viewSuperPic" class="font-bold text-cpi-700">-</span><span id="checkSuper" class="text-slate-300"><i class="far fa-circle"></i></span></div></div>
-                            <div class="p-2 border rounded bg-slate-50"><div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Pelaksana Harian (Exec)</div><div class="flex items-center justify-between"><span id="viewExecPic" class="font-bold text-cpi-700">-</span><span id="checkExec" class="text-slate-300"><i class="far fa-circle"></i></span></div></div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="p-2 border rounded"><strong>KPI:</strong> <span id="modalKPI">-</span></div>
-                            <div class="p-2 border rounded bg-yellow-50"><strong>RAB:</strong> <span id="modalRAB" class="text-yellow-700 font-bold">-</span></div>
-                            <div class="p-2 border rounded col-span-2"><strong>Loc:</strong> <span id="modalLoc">-</span></div>
-                        </div>
-                        <div class="text-xs"><strong class="block mb-1">Tahapan:</strong><ul class="space-y-1 pl-0" id="modalSteps"></ul></div>
+                         <!-- View Content populated by JS -->
                     </div>
                     <div id="content-edit" class="space-y-3 hidden">
-                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100"><label class="text-[10px] font-bold text-indigo-700 uppercase block mb-1">Status Progres</label><select id="editStatus" class="w-full border rounded p-1 text-xs"><option value="todo">Rencana</option><option value="doing">Berjalan</option><option value="done">Selesai</option></select></div>
-                        <div class="grid grid-cols-2 gap-2 bg-yellow-50 p-2 rounded border border-yellow-100">
-                            <div><label class="text-[9px] font-bold text-slate-500 uppercase block">Validasi SPV</label><input type="text" id="editSuperPic" class="edit-input text-xs mb-1" placeholder="Nama SPV"><div class="flex items-center gap-1"><input type="checkbox" id="editCheckSuper"> <span class="text-[9px]">Approved</span></div></div>
-                            <div><label class="text-[9px] font-bold text-slate-500 uppercase block">Validasi Exec</label><input type="text" id="editExecPic" class="edit-input text-xs mb-1" placeholder="Nama Exec"><div class="flex items-center gap-1"><input type="checkbox" id="editCheckExec"> <span class="text-[9px]">Approved</span></div></div>
+                        <!-- STATUS DROPDOWN BARU -->
+                        <div class="bg-indigo-50 p-2 rounded border border-indigo-100">
+                            <label class="text-[10px] font-bold text-indigo-700 uppercase block mb-1">Status Pelaksanaan</label>
+                            <select id="editStatus" class="w-full border rounded p-1 text-xs font-bold text-slate-700">
+                                <option value="waiting">⚪ Menunggu (Rencana)</option>
+                                <option value="progress">🔵 On Progress (Berjalan)</option>
+                                <option value="completed">🟢 Terlaksana (Selesai)</option>
+                                <option value="pending">🟠 Tertunda (Arsip)</option>
+                                <option value="canceled">🔴 Gagal/Batal (Arsip)</option>
+                            </select>
                         </div>
                         
-                        <!-- DATE & MONTH EDITOR -->
-                        <div class="grid grid-cols-2 gap-2">
-                             <div><label class="text-[10px] font-bold text-slate-500 uppercase">Tanggal</label><input type="date" id="editDate" class="edit-input text-xs" onchange="autoUpdateMonth()"></div>
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Bulan (Auto)</label><input type="text" id="editMonth" class="edit-input text-xs bg-gray-100" readonly></div>
-                        </div>
-
+                        <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-bold text-slate-500 uppercase">Tanggal</label><input type="date" id="editDate" class="edit-input text-xs" onchange="autoUpdateMonth()"></div><div><label class="text-[10px] font-bold text-slate-500 uppercase">Bulan (Auto)</label><input type="text" id="editMonth" class="edit-input text-xs bg-gray-100" readonly></div></div>
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase">Deskripsi</label><textarea id="editDesc" rows="2" class="edit-input text-xs"></textarea></div>
                         <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-bold text-slate-500 uppercase">KPI</label><input type="text" id="editKPI" class="edit-input text-xs"></div><div><label class="text-[10px] font-bold text-slate-500 uppercase">RAB</label><input type="text" id="editRAB" class="edit-input text-xs font-mono"></div><div><label class="text-[10px] font-bold text-slate-500 uppercase">Loc</label><input type="text" id="editLoc" class="edit-input text-xs"></div></div>
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase">Tahapan</label><textarea id="editSteps" rows="3" class="edit-input text-xs"></textarea></div>
+                        <!-- Validation Fields REMOVED -->
                     </div>
                 </div>
                 <div class="px-4 py-3 border-t border-slate-100 bg-slate-50 flex justify-between items-center flex-none">
-                    <span class="text-[9px] text-slate-400 italic" id="edit-hint">*Auto-save.</span>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 w-full justify-end">
                         <button id="btn-cancel" onclick="toggleEditMode(false)" class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded hidden">Batal</button>
                         <button id="btn-delete" onclick="deleteProgram()" class="px-3 py-1.5 text-xs font-bold bg-red-50 text-red-600 border border-red-200 rounded hidden hover:bg-red-100"><i class="fas fa-trash"></i></button>
                         <button id="btn-edit" onclick="toggleEditMode(true)" class="px-3 py-1.5 text-xs font-bold bg-white border text-slate-700 rounded shadow-sm"><i class="fas fa-edit mr-1"></i> Edit</button>
@@ -342,14 +350,85 @@
             </div>
         </div>
 
+        <!-- FINANCE MODAL (SOP COMPLIANT) -->
+        <div id="financeModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg flex flex-col transform transition-all scale-95 max-h-[90vh]">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
+                    <h3 class="font-bold text-base text-slate-800"><i class="fas fa-edit mr-2 text-cpi-600"></i> Input Transaksi (SOP)</h3>
+                    <button onclick="closeFinanceModal()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times text-lg"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tanggal</label><input type="date" id="finDate" class="edit-input text-xs"></div>
+                        <div><label class="text-[10px] font-bold uppercase text-slate-500 block mb-1">No. Bukti</label><input type="text" id="finRef" class="edit-input text-xs font-mono" placeholder="BKK-001"></div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 block mb-1">Akun (COA)</label>
+                        <select id="finAccount" class="w-full border border-slate-300 rounded p-2 text-xs bg-white font-medium" onchange="autoSetFlowType()">
+                            <optgroup label="100-199 ASET (HARTA)">
+                                <option value="101">101 - Kas Kecil (Petty Cash)</option>
+                                <option value="102">102 - Bank - Operasional</option>
+                                <option value="103">103 - Bank - Khusus Donasi</option>
+                            </optgroup>
+                            <optgroup label="400-499 PENERIMAAN (IN)">
+                                <option value="401">401 - Donasi Tidak Terikat</option>
+                                <option value="402">402 - Donasi Terikat (CSR)</option>
+                                <option value="403">403 - Hasil Usaha</option>
+                            </optgroup>
+                            <optgroup label="500-599 PENGELUARAN PROGRAM (OUT)">
+                                <option value="501">501 - Beban Program Pendidikan</option>
+                                <option value="502">502 - Beban Program Kesehatan</option>
+                                <option value="503">503 - Beban Program Lingkungan</option>
+                            </optgroup>
+                            <optgroup label="600-699 PENGELUARAN OPERASIONAL (OUT)">
+                                <option value="601">601 - Gaji & Honorarium</option>
+                                <option value="602">602 - Transport & Akomodasi</option>
+                                <option value="603">603 - Alat Tulis Kantor (ATK)</option>
+                                <option value="604">604 - Konsumsi Rapat</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-500 block mb-1">Uraian</label><textarea id="finDesc" rows="2" class="edit-input text-xs"></textarea></div>
+                    <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded border border-slate-200">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-500 block mb-1">Tipe</label>
+                            <div class="flex gap-2">
+                                <label class="flex items-center gap-1 text-xs"><input type="radio" name="finType" value="out" id="finTypeOut"> Keluar</label>
+                                <label class="flex items-center gap-1 text-xs"><input type="radio" name="finType" value="in" id="finTypeIn"> Masuk</label>
+                            </div>
+                        </div>
+                        <div><label class="text-[10px] font-bold uppercase text-slate-500 block mb-1">Rp</label><input type="number" id="finAmount" class="edit-input text-sm font-bold text-rose-600 font-mono" placeholder="0"></div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2"><input type="checkbox" id="finApproval" class="rounded text-cpi-600"><label for="finApproval" class="text-[10px] text-slate-600">Transaksi valid & ada bukti.</label></div>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 rounded-b-xl">
+                    <button onclick="closeFinanceModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition">Batal</button>
+                    <button onclick="saveTransaction()" class="px-4 py-2 text-xs font-bold bg-cpi-700 text-white rounded-lg shadow hover:bg-cpi-800 transition"><i class="fas fa-save mr-1"></i> Simpan</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxt87Vpeg8rhvf0cRj22-N95qGAshGt5J3sqceEUkAnnQJUmnIBY-T2yarIH646zWCC/exec"; 
-        const fallbackData = [{ id: 1, status: 'todo', month: 'Januari', date: '17', fullDate: '2026-01-17', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', pic_super: 'Divisi Safety', pic_exec: 'Relawan A', valid_super: false, valid_exec: false, loc: 'Online', steps: ['Siap Alat'] }];
-        let programKerja = []; let currentEditId = null;
+        const fallbackData = [{ id: 1, status: 'waiting', month: 'Januari', date: '17', fullDate: '2026-01-17', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', loc: 'Online', steps: ['Siap Alat'] }];
         
-        let currentMonth = 0; // Jan 2026
+        // NEW STATUS CONFIG
+        const statusConfig = {
+            'waiting': { label: 'Menunggu', class: 'bg-slate-100 text-slate-600 border-slate-200', icon: 'fa-pause-circle' },
+            'progress': { label: 'On Progress', class: 'bg-blue-100 text-blue-700 border-blue-200', icon: 'fa-spinner fa-spin' },
+            'completed': { label: 'Terlaksana', class: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: 'fa-check-circle' },
+            'pending': { label: 'Tertunda', class: 'bg-orange-100 text-orange-700 border-orange-200', icon: 'fa-clock' },
+            'canceled': { label: 'Gagal/Batal', class: 'bg-red-100 text-red-700 border-red-200', icon: 'fa-times-circle' },
+            // Backward comp
+            'todo': { label: 'Menunggu', class: 'bg-slate-100 text-slate-600 border-slate-200', icon: 'fa-pause-circle' },
+            'doing': { label: 'On Progress', class: 'bg-blue-100 text-blue-700 border-blue-200', icon: 'fa-spinner fa-spin' },
+            'done': { label: 'Terlaksana', class: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: 'fa-check-circle' }
+        };
+
+        let programKerja = []; let financeData = []; 
+        let currentEditId = null; let currentMonth = 0; // Jan 2026
         const monthsName = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
         const driveStructure = [
@@ -361,13 +440,20 @@
             { id: 'root_05', name: '05. Media', icon: 'fa-bullhorn', children: [{ id: '1itUpV-0J3fvAEmBG47NHaa6LHS8kikOS', name: '05.01 Visual' }, { id: '1gX4UXrPT5nQgzkkOQosMoQSC0igiHNNJ', name: '05.02 Dok Kegiatan' }] }
         ];
 
-        window.addEventListener('DOMContentLoaded', () => { fetchData(); renderDriveSidebar(); });
+        window.addEventListener('DOMContentLoaded', () => { 
+            fetchData(); 
+            const finLocal = localStorage.getItem('cpi_finance_local');
+            if(finLocal) financeData = JSON.parse(finLocal);
+            renderDriveSidebar(); 
+            renderCalendar();
+            renderFinance();
+        });
 
         async function fetchData() {
             showLoader(true); setStatus('Connecting...', 'yellow');
             try {
                 const res = await fetch(SCRIPT_URL); const data = await res.json();
-                programKerja = (data && data.length) ? data.map(p => ({...p, status: p.status || 'todo'})) : fallbackData;
+                programKerja = (data && data.length) ? data.map(p => ({...p, status: p.status || 'waiting'})) : fallbackData;
                 setStatus('Online', 'green');
             } catch (e) {
                 const local = localStorage.getItem('cpi_cloud_backup');
@@ -386,60 +472,198 @@
         }
         
         function forceSync() { if(confirm("Sync data?")) saveDataToCloud(); }
-        function refreshUI() { updateDashboard(); renderCalendar(); renderKanban(); renderTimeline(); }
+        function refreshUI() { updateDashboard(); renderCalendar(); renderKanban(); renderTimeline(); renderFinance(); }
         function showLoader(show) { document.getElementById('cloud-loader').className = show ? 'fixed inset-0 z-[70] flex flex-col items-center justify-center' : 'hidden'; }
         function setStatus(text, color) { document.getElementById('status-indicator').innerHTML = `<div class="w-2 h-2 rounded-full bg-${color}-500 animate-pulse"></div><span class="text-[10px] font-bold text-${color}-700 hidden md:inline">${text}</span>`; }
 
         function updateDashboard() {
             const total = programKerja.length; let done = 0;
-            programKerja.forEach(p => { if(p.status === 'done') done++; });
+            programKerja.forEach(p => { if(p.status === 'completed' || p.status === 'done') done++; });
             document.getElementById('dashTotal').innerText = total; document.getElementById('dashDone').innerText = done;
+            
             const pCounts = {'Pendidikan':0,'Kesehatan':0,'Lingkungan':0,'Internal':0};
-            const sCounts = {'done':0,'doing':0,'todo':0};
+            const sCounts = {'completed':0,'progress':0,'waiting':0};
             programKerja.forEach(p => {
                 let k = p.pillar; if(k==='Sosial') k='Kesehatan'; if(pCounts[k]!==undefined) pCounts[k]++;
-                if(sCounts[p.status]!==undefined) sCounts[p.status]++;
+                // Map old status to new simplified dashboard stats
+                let st = p.status; 
+                if(st==='todo') st='waiting'; if(st==='doing') st='progress'; if(st==='done') st='completed';
+                if(['pending','canceled'].includes(st)) st='completed'; // Group finished items
+                if(sCounts[st]!==undefined) sCounts[st]++;
             });
+
             const ctx1 = document.getElementById('pillarChart').getContext('2d');
             if(window.pillarChart instanceof Chart) window.pillarChart.destroy();
             window.pillarChart = new Chart(ctx1, { type: 'doughnut', data: { labels: Object.keys(pCounts), datasets: [{ data: Object.values(pCounts), backgroundColor: ['#3b82f6','#f43f5e','#10b981','#64748b'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}} } });
+
             const ctx2 = document.getElementById('statusChart').getContext('2d');
             if(window.statusChart instanceof Chart) window.statusChart.destroy();
-            window.statusChart = new Chart(ctx2, { type: 'pie', data: { labels: ['Selesai','Berjalan','Rencana'], datasets: [{ data: [sCounts.done, sCounts.doing, sCounts.todo], backgroundColor: ['#10b981','#a855f7','#cbd5e1'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}} } });
+            window.statusChart = new Chart(ctx2, { type: 'pie', data: { labels: ['Selesai','Berjalan','Rencana'], datasets: [{ data: [sCounts.completed, sCounts.progress, sCounts.waiting], backgroundColor: ['#10b981','#a855f7','#cbd5e1'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}} } });
         }
 
-        // FULL CALENDAR LOGIC
-        function changeMonth(delta) {
-            currentMonth += delta; if(currentMonth < 0) currentMonth = 0; if(currentMonth > 11) currentMonth = 11;
-            renderCalendar();
+        // --- FINANCE FUNCTIONS ---
+        function openFinanceModal() { const m = document.getElementById('financeModal'); m.classList.remove('hidden','pointer-events-none','opacity-0'); m.querySelector('div').classList.add('scale-100'); }
+        function closeFinanceModal() { const m = document.getElementById('financeModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
+        function saveTransaction() {
+            const date = document.getElementById('finDate').value;
+            const ref = document.getElementById('finRef').value;
+            const type = document.querySelector('input[name="finType"]:checked').value;
+            const amt = parseInt(document.getElementById('finAmount').value)||0;
+            const desc = document.getElementById('finDesc').value;
+            const cat = document.getElementById('finAccount').value;
+            const ok = document.getElementById('finApproval').checked;
+            if(!date || amt<=0) return alert("Lengkapi data!");
+            financeData.push({ id: Date.now(), date, ref, type, amount: amt, desc, category: cat, status: ok?'verified':'pending' });
+            localStorage.setItem('cpi_finance_local', JSON.stringify(financeData));
+            renderFinance(); closeFinanceModal();
         }
+        function renderFinance() {
+            let totalIn=0, totalOut=0; const tbody = document.getElementById('financeTableBody'); tbody.innerHTML = '';
+            financeData.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(t => {
+                if(t.type==='in') totalIn+=t.amount; else totalOut+=t.amount;
+                const c = t.type==='in'?'text-emerald-600':'text-rose-600';
+                tbody.innerHTML += `<tr><td class="p-3 border-b">${t.date}</td><td class="p-3 border-b font-mono">${t.ref||'-'}</td><td class="p-3 border-b font-bold text-slate-700">${t.desc}</td><td class="p-3 border-b text-slate-500">${t.category}</td><td class="p-3 border-b text-right font-mono ${c}">${t.type==='in'?'+':'-'} ${t.amount.toLocaleString()}</td><td class="p-3 border-b text-center"><span class="px-2 py-0.5 rounded text-[10px] uppercase ${t.status==='verified'?'bg-emerald-100 text-emerald-700':'bg-yellow-100 text-yellow-700'}">${t.status}</span></td><td class="p-3 border-b text-center"><button onclick="deleteTrans(${t.id})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></td></tr>`;
+            });
+            document.getElementById('finIn').innerText = `Rp ${totalIn.toLocaleString()}`; document.getElementById('finOut').innerText = `Rp ${totalOut.toLocaleString()}`; document.getElementById('finBalance').innerText = `Rp ${(totalIn-totalOut).toLocaleString()}`;
+            const ctx = document.getElementById('financeChart').getContext('2d'); if(window.financeChart instanceof Chart) window.financeChart.destroy();
+            let bal=0; const trend = financeData.slice().reverse().map(d => { bal += (d.type==='in'?d.amount:-d.amount); return bal; });
+            window.financeChart = new Chart(ctx, { type: 'line', data: { labels: financeData.slice().reverse().map(d=>d.date), datasets: [{ label: 'Saldo', data: trend, borderColor: '#0369a1', tension: 0.4, fill: true, backgroundColor: 'rgba(3, 105, 161, 0.1)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: {legend:{display:false}}, scales:{y:{beginAtZero:true}} } });
+        }
+        function deleteTrans(id) { if(confirm('Hapus transaksi?')) { financeData = financeData.filter(t=>t.id!==id); localStorage.setItem('cpi_finance_local', JSON.stringify(financeData)); renderFinance(); } }
+        
+        // --- PDF REPORT GENERATION (CASHFLOW FORMAT) ---
+        function downloadReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(3, 105, 161); // Brand Color
+            doc.text("LAPORAN ARUS KAS YAYASAN CPI", 105, 20, null, "center");
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text("Periode: s.d. " + new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }), 105, 27, null, "center");
+            doc.line(20, 32, 190, 32);
+
+            // Grouping Logic
+            let totalIn = 0;
+            let totalOut = 0;
+            
+            const incomeCats = {
+                '401': { name: 'Donasi Tidak Terikat', total: 0 },
+                '402': { name: 'Donasi Terikat (CSR)', total: 0 },
+                '403': { name: 'Hasil Usaha', total: 0 }
+            };
+            
+            const expenseCats = {
+                '501': { name: 'Beban Program Pendidikan', total: 0 },
+                '502': { name: 'Beban Program Kesehatan', total: 0 },
+                '503': { name: 'Beban Program Lingkungan', total: 0 },
+                '601': { name: 'Gaji & Honorarium', total: 0 },
+                '602': { name: 'Transport & Akomodasi', total: 0 },
+                '603': { name: 'Alat Tulis Kantor', total: 0 },
+                '604': { name: 'Konsumsi Rapat', total: 0 }
+            };
+
+            // Process Data
+            financeData.forEach(t => {
+                if (t.type === 'in') {
+                    totalIn += t.amount;
+                    if (incomeCats[t.category]) incomeCats[t.category].total += t.amount;
+                } else {
+                    totalOut += t.amount;
+                    if (expenseCats[t.category]) expenseCats[t.category].total += t.amount;
+                }
+            });
+
+            // Table Data Construction
+            let bodyData = [];
+            
+            // Section: PEMASUKAN
+            bodyData.push([{ content: 'ARUS KAS MASUK (PENERIMAAN)', colSpan: 2, styles: { fontStyle: 'bold', fillColor: [240, 253, 250], textColor: [6, 95, 70] } }]);
+            Object.values(incomeCats).forEach(c => {
+                if (c.total > 0) bodyData.push([c.name, 'Rp ' + c.total.toLocaleString('id-ID')]);
+            });
+            bodyData.push([{ content: 'Total Penerimaan', styles: { fontStyle: 'bold' }}, { content: 'Rp ' + totalIn.toLocaleString('id-ID'), styles: { fontStyle: 'bold', textColor: [6, 95, 70] } }]);
+            
+            // Section: PENGELUARAN
+            bodyData.push([{ content: 'ARUS KAS KELUAR (PENGELUARAN)', colSpan: 2, styles: { fontStyle: 'bold', fillColor: [255, 241, 242], textColor: [153, 27, 27], valign: 'middle' } }]);
+            Object.values(expenseCats).forEach(c => {
+                if (c.total > 0) bodyData.push([c.name, 'Rp ' + c.total.toLocaleString('id-ID')]);
+            });
+            bodyData.push([{ content: 'Total Pengeluaran', styles: { fontStyle: 'bold' }}, { content: 'Rp ' + totalOut.toLocaleString('id-ID'), styles: { fontStyle: 'bold', textColor: [153, 27, 27] } }]);
+
+            // Section: SUMMARY
+            const surplus = totalIn - totalOut;
+            const surplusColor = surplus >= 0 ? [6, 95, 70] : [153, 27, 27];
+            bodyData.push([{ content: '', colSpan: 2, styles: { fillColor: [255, 255, 255] } }]); // Spacer
+            bodyData.push([{ content: 'SURPLUS / (DEFISIT)', styles: { fontStyle: 'bold', fontSize: 11, fillColor: [241, 245, 249] }}, { content: 'Rp ' + surplus.toLocaleString('id-ID'), styles: { fontStyle: 'bold', fontSize: 11, textColor: surplusColor, fillColor: [241, 245, 249] } }]);
+
+            // Generate Table
+            doc.autoTable({
+                startY: 40,
+                head: [['Uraian', 'Nominal']],
+                body: bodyData,
+                theme: 'grid',
+                headStyles: { fillColor: [3, 105, 161], textColor: 255, fontStyle: 'bold' },
+                columnStyles: {
+                    0: { cellWidth: 120 },
+                    1: { cellWidth: 'auto', halign: 'right' }
+                },
+                styles: { fontSize: 10, cellPadding: 4 }
+            });
+
+            // Footer
+            const finalY = doc.lastAutoTable.finalY + 20;
+            doc.setFontSize(9);
+            doc.setTextColor(100);
+            doc.text("Dicetak otomatis oleh CPI Command Center", 20, 280);
+            doc.text("Halaman 1 dari 1", 190, 280, null, "right");
+            
+            // Signatures Area
+            if (finalY < 250) {
+                doc.text("Disetujui Oleh,", 140, finalY);
+                doc.text("Dibuat Oleh,", 30, finalY);
+                doc.line(140, finalY + 25, 180, finalY + 25);
+                doc.line(30, finalY + 25, 70, finalY + 25);
+                doc.text("( Ketua Yayasan )", 140, finalY + 30);
+                doc.text("( Bendahara )", 30, finalY + 30);
+            }
+
+            doc.save('Laporan_Keuangan_CPI_' + new Date().toISOString().split('T')[0] + '.pdf');
+        }
+
+        function autoSetFlowType() {
+            const acc = document.getElementById('finAccount').value;
+            if (acc >= 400 && acc < 500) { document.getElementById('finTypeIn').checked = true; } 
+            else if (acc >= 500) { document.getElementById('finTypeOut').checked = true; }
+        }
+
+        // --- CALENDAR & TIMELINE ---
+        function changeMonth(delta) { currentMonth += delta; if(currentMonth < 0) currentMonth = 0; if(currentMonth > 11) currentMonth = 11; renderCalendar(); }
         function renderCalendar() {
             const mName = monthsName[currentMonth]; const year = 2026;
             document.getElementById('currentMonthYear').innerText = `${mName} ${year}`;
-            const firstDay = new Date(year, currentMonth, 1).getDay();
-            const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
+            const firstDay = new Date(year, currentMonth, 1).getDay(); const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
             const container = document.getElementById('calendarDays'); container.innerHTML = '';
-            
             for(let i=0; i<firstDay; i++) container.innerHTML += `<div class="calendar-day bg-slate-50/50"></div>`;
             for(let d=1; d<=daysInMonth; d++) {
                 let html = `<div class="calendar-day"><span class="text-xs font-bold text-slate-400 absolute top-1 right-2">${d}</span><div class="mt-4 space-y-1">`;
-                // Logic: 14 days before = Planning, Day H = Exec, +7 days = Eval
-                // Only approximate based on stored 'date' (day number) or fullDate
                 programKerja.forEach(p => {
-                    if(p.month === mName) {
-                        let dayH = parseInt(p.date); // Simple fallback
-                        if(p.fullDate) dayH = new Date(p.fullDate).getDate();
-
-                        if(dayH === d) html += `<div class="event-marker marker-exec" onclick="openProgramDetail(${p.id})">HARI H: ${p.title}</div>`;
-                        if(dayH - 14 === d) html += `<div class="event-marker marker-plan" onclick="openProgramDetail(${p.id})">PLAN: ${p.title}</div>`;
-                        if(dayH + 7 === d) html += `<div class="event-marker marker-eval" onclick="openProgramDetail(${p.id})">EVAL: ${p.title}</div>`;
+                    let pDate = null;
+                    if(p.fullDate) { const dobj = new Date(p.fullDate); if(dobj.getMonth()===currentMonth && dobj.getFullYear()===year) pDate = dobj.getDate(); }
+                    else if (p.date && p.month === mName) { pDate = parseInt(p.date); }
+                    if(pDate) {
+                        if((pDate-14)===d) html += `<div class="event-marker marker-plan" onclick="openProgramDetail(${p.id})">PLAN: ${p.title}</div>`;
+                        if(pDate===d) html += `<div class="event-marker marker-exec" onclick="openProgramDetail(${p.id})">EVENT: ${p.title}</div>`;
+                        if((pDate+7)===d) html += `<div class="event-marker marker-eval" onclick="openProgramDetail(${p.id})">EVAL: ${p.title}</div>`;
                     }
                 });
-                html += `</div></div>`;
-                container.innerHTML += html;
+                html += `</div></div>`; container.innerHTML += html;
             }
         }
-
         function renderTimeline() {
             const container = document.getElementById('creativeTimeline');
             const sortedData = [...programKerja].sort((a,b) => monthsName.indexOf(a.month) - monthsName.indexOf(b.month));
@@ -450,97 +674,124 @@
             }).join('');
         }
 
+        // --- KANBAN (UPDATED LOGIC) ---
         function renderKanban() {
-            const cols = { todo: document.getElementById('kanban-todo'), doing: document.getElementById('kanban-doing'), done: document.getElementById('kanban-done') };
+            const cols = { 
+                todo: document.getElementById('kanban-todo'), 
+                doing: document.getElementById('kanban-doing'), 
+                done: document.getElementById('kanban-done') 
+            };
             Object.values(cols).forEach(c => c.innerHTML = '');
             const counts = { todo:0, doing:0, done:0 };
+            
             programKerja.forEach(p => {
-                const st = p.status || 'todo'; counts[st]++;
+                const st = p.status || 'waiting';
+                let targetCol = 'todo';
+                
+                // Logic Mapping
+                if (st === 'waiting' || st === 'todo') targetCol = 'todo';
+                else if (st === 'progress' || st === 'doing') targetCol = 'doing';
+                else targetCol = 'done'; // completed, pending, canceled
+                
+                counts[targetCol]++;
+                
+                // Visual Config
                 const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar] || 'slate';
-                const initSuper = (p.pic_super || '?').substring(0,2).toUpperCase(); const initExec = (p.pic_exec || '?').substring(0,2).toUpperCase();
-                let checkIcon = ''; if(p.valid_super && p.valid_exec) checkIcon = '<i class="fas fa-check-double text-emerald-500 ml-1 text-[10px]"></i>'; else if(p.valid_super||p.valid_exec) checkIcon = '<i class="fas fa-check text-blue-500 ml-1 text-[10px]"></i>';
-                const card = document.createElement('div');
-                card.className = `kanban-card bg-white p-2 rounded shadow-sm border-l-4 border-${c}-500`;
-                card.innerHTML = `<div class="flex justify-between mb-1"><span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span><span class="text-[9px] text-slate-400">${p.month}</span></div><h4 class="font-bold text-xs text-slate-800 mb-1 leading-tight">${p.title} ${checkIcon}</h4><div class="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-1 mt-1"><div class="flex gap-1"><span class="w-4 h-4 rounded-full ${p.valid_super?'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500':'bg-slate-200 text-slate-600'} flex items-center justify-center text-[8px] font-bold" title="SPV">${initSuper}</span><span class="w-4 h-4 rounded-full ${p.valid_exec?'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500':'bg-orange-100 text-orange-600'} flex items-center justify-center text-[8px] font-bold" title="EXEC">${initExec}</span></div><i class="far fa-edit text-slate-300 hover:text-cpi-600"></i></div>`;
-                card.onclick = () => openProgramDetail(p.id);
-                cols[st].appendChild(card);
+                const sConf = statusConfig[st] || statusConfig['waiting'];
+                
+                const card = document.createElement('div'); 
+                card.className = `kanban-card bg-white p-3 rounded shadow-sm border-l-4 border-${c}-500 mb-2`;
+                
+                // CARD HTML (SIMPLIFIED - NO CHECKS)
+                card.innerHTML = `
+                    <div class="flex justify-between mb-2">
+                        <span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span>
+                        <div class="text-slate-400 text-xs hover:text-cpi-600"><i class="fas fa-edit"></i></div>
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-800 mb-2 leading-tight">${p.title}</h4>
+                    <div class="border-t border-slate-100 pt-2 flex items-center justify-between">
+                        <span class="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold uppercase border ${sConf.class}">
+                            <i class="fas ${sConf.icon}"></i> ${sConf.label}
+                        </span>
+                    </div>
+                `;
+                
+                card.onclick = () => openProgramDetail(p.id); 
+                cols[targetCol].appendChild(card);
             });
-            document.getElementById('count-todo').innerText = counts.todo; document.getElementById('count-doing').innerText = counts.doing; document.getElementById('count-done').innerText = counts.done;
+            
+            document.getElementById('count-todo').innerText = counts.todo; 
+            document.getElementById('count-doing').innerText = counts.doing; 
+            document.getElementById('count-done').innerText = counts.done;
         }
 
+        // --- MODALS & EDITS ---
         function openProgramDetail(id) {
             currentEditId = id; const p = programKerja.find(x => x.id === id); if(!p) return;
             const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar];
-            document.getElementById('modalTitle').innerText = p.title; document.getElementById('modalDesc').innerText = p.desc;
-            document.getElementById('modalKPI').innerText = p.kpi; document.getElementById('modalRAB').innerText = p.rab;
-            document.getElementById('modalLoc').innerText = p.loc;
-            document.getElementById('viewSuperPic').innerText = p.pic_super || '-';
-            document.getElementById('checkSuper').innerHTML = p.valid_super ? '<i class="fas fa-check-circle text-emerald-500"></i>' : '<i class="far fa-circle text-slate-300"></i>';
-            document.getElementById('viewExecPic').innerText = p.pic_exec || '-';
-            document.getElementById('checkExec').innerHTML = p.valid_exec ? '<i class="fas fa-check-circle text-emerald-500"></i>' : '<i class="far fa-circle text-slate-300"></i>';
-            document.getElementById('modalTags').innerHTML = `<span class="px-2 py-0.5 bg-${c}-100 text-${c}-700 rounded text-[10px] font-bold uppercase">${p.pillar}</span>`;
-            const sMap = {'todo':['bg-slate-100 text-slate-600','Rencana'],'doing':['bg-blue-100 text-blue-700','Berjalan'],'done':['bg-emerald-100 text-emerald-700','Selesai']};
-            const sStyle = sMap[p.status||'todo'];
-            const badge = document.getElementById('viewStatusBadge'); badge.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${sStyle[0]}`; badge.innerText = sStyle[1];
-            document.getElementById('modalSteps').innerHTML = (p.steps||[]).map((s,i) => `<li class="flex gap-2 items-start text-xs text-slate-600"><span class="flex-none w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-bold border">${i+1}</span><span>${s}</span></li>`).join('');
+            document.getElementById('modalTitle').innerText = p.title; 
             
-            document.getElementById('editTitle').value = p.title; document.getElementById('editDesc').value = p.desc;
-            document.getElementById('editKPI').value = p.kpi; document.getElementById('editRAB').value = p.rab;
-            document.getElementById('editSuperPic').value = p.pic_super || ''; document.getElementById('editExecPic').value = p.pic_exec || '';
-            document.getElementById('editCheckSuper').checked = p.valid_super || false; document.getElementById('editCheckExec').checked = p.valid_exec || false;
-            document.getElementById('editLoc').value = p.loc; document.getElementById('editSteps').value = (p.steps||[]).join('\n'); document.getElementById('editStatus').value = p.status||'todo';
+            // Build View Content
+            const sConf = statusConfig[p.status || 'waiting'] || statusConfig['waiting'];
+            const viewHtml = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="px-2 py-0.5 bg-${c}-100 text-${c}-700 rounded text-[10px] font-bold uppercase">${p.pillar}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${sConf.class}"><i class="fas ${sConf.icon} mr-1"></i>${sConf.label}</span>
+                </div>
+                <p class="text-sm text-slate-600" id="modalDesc">${p.desc}</p>
+                <div class="grid grid-cols-3 gap-2 text-xs bg-slate-50 p-3 rounded border border-slate-100">
+                    <div><span class="block text-[10px] text-slate-400 uppercase font-bold">KPI</span><span class="font-bold">${p.kpi}</span></div>
+                    <div><span class="block text-[10px] text-slate-400 uppercase font-bold">RAB</span><span class="font-mono text-emerald-600">${p.rab}</span></div>
+                    <div><span class="block text-[10px] text-slate-400 uppercase font-bold">Lokasi</span><span>${p.loc}</span></div>
+                </div>
+                <div>
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-1">Tahapan</h4>
+                    <ul class="space-y-1" id="modalSteps">
+                        ${(p.steps||[]).map((s,i) => `<li class="flex gap-2 items-start text-xs text-slate-600"><span class="flex-none w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-bold border">${i+1}</span><span>${s}</span></li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            document.getElementById('content-view').innerHTML = viewHtml;
             
-            // Date
+            // Populate Edit Form
+            document.getElementById('editTitle').value = p.title; 
+            document.getElementById('editDesc').value = p.desc;
+            document.getElementById('editKPI').value = p.kpi; 
+            document.getElementById('editRAB').value = p.rab;
+            document.getElementById('editLoc').value = p.loc; 
+            document.getElementById('editSteps').value = (p.steps||[]).join('\n'); 
+            document.getElementById('editStatus').value = p.status || 'waiting'; // Set dropdown
+            
             let dVal = ''; if(p.fullDate) dVal = p.fullDate; 
-            else if(p.date) { 
-                const d = parseInt(p.date); 
-                const m = monthsName.indexOf(p.month);
-                if(!isNaN(d) && m > -1) dVal = `2026-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            }
-            document.getElementById('editDate').value = dVal;
-            document.getElementById('editMonth').value = p.month || '';
+            else if(p.date) { const d = parseInt(p.date); const m = monthsName.indexOf(p.month); if(!isNaN(d) && m > -1) dVal = `2026-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+            document.getElementById('editDate').value = dVal; document.getElementById('editMonth').value = p.month || '';
 
             toggleEditMode(false);
             const m = document.getElementById('programModal'); m.classList.remove('hidden','pointer-events-none','opacity-0'); m.querySelector('div').classList.add('scale-100'); document.body.classList.add('modal-active');
         }
 
-        function autoUpdateMonth() {
-            const dVal = document.getElementById('editDate').value;
-            if(dVal) {
-                const dt = new Date(dVal);
-                document.getElementById('editMonth').value = monthsName[dt.getMonth()];
-            }
-        }
-
-        function deleteProgram() {
-            if(currentEditId !== null && confirm("Hapus permanen?")) {
-                programKerja = programKerja.filter(p => p.id !== currentEditId);
-                closeModal(); saveDataToCloud();
-            }
-        }
+        function autoUpdateMonth() { const d = document.getElementById('editDate').value; if(d) document.getElementById('editMonth').value = monthsName[new Date(d).getMonth()]; }
+        function deleteProgram() { if(currentEditId !== null && confirm("Hapus permanen?")) { programKerja = programKerja.filter(p => p.id !== currentEditId); closeModal(); saveDataToCloud(); } }
 
         function saveChanges() {
             if(currentEditId===null) return; const idx = programKerja.findIndex(p=>p.id===currentEditId); if(idx!==-1){
-                programKerja[idx].title = document.getElementById('editTitle').value; programKerja[idx].desc = document.getElementById('editDesc').value;
-                programKerja[idx].kpi = document.getElementById('editKPI').value; programKerja[idx].rab = document.getElementById('editRAB').value;
-                programKerja[idx].pic_super = document.getElementById('editSuperPic').value; programKerja[idx].pic_exec = document.getElementById('editExecPic').value;
-                programKerja[idx].valid_super = document.getElementById('editCheckSuper').checked; programKerja[idx].valid_exec = document.getElementById('editCheckExec').checked;
-                programKerja[idx].loc = document.getElementById('editLoc').value; programKerja[idx].steps = document.getElementById('editSteps').value.split('\n').filter(s=>s.trim()!=='');
-                programKerja[idx].status = document.getElementById('editStatus').value;
+                programKerja[idx].title = document.getElementById('editTitle').value; 
+                programKerja[idx].desc = document.getElementById('editDesc').value;
+                programKerja[idx].kpi = document.getElementById('editKPI').value; 
+                programKerja[idx].rab = document.getElementById('editRAB').value;
+                programKerja[idx].loc = document.getElementById('editLoc').value; 
+                programKerja[idx].steps = document.getElementById('editSteps').value.split('\n').filter(s=>s.trim()!=='');
+                programKerja[idx].status = document.getElementById('editStatus').value; // Save new status
                 
                 const dVal = document.getElementById('editDate').value;
-                if(dVal) {
-                    programKerja[idx].fullDate = dVal;
-                    programKerja[idx].date = new Date(dVal).getDate().toString();
-                    programKerja[idx].month = document.getElementById('editMonth').value;
-                }
+                if(dVal) { programKerja[idx].fullDate = dVal; programKerja[idx].date = new Date(dVal).getDate().toString(); programKerja[idx].month = document.getElementById('editMonth').value; }
                 
                 openProgramDetail(currentEditId); saveDataToCloud();
             }
         }
 
         function switchView(v) {
-            ['dashboard','kanban','roadmap','drive'].forEach(x => {
+            ['dashboard','kanban','roadmap','drive','finance'].forEach(x => {
                 document.getElementById(`view-${x}`).style.opacity = '0'; document.getElementById(`view-${x}`).style.pointerEvents = 'none';
                 const d = document.getElementById(`btn-${x}`); if(d) d.classList.remove('active');
                 const m = document.getElementById(`mob-${x}`); if(m) m.classList.remove('active');
@@ -548,7 +799,7 @@
             const ae = document.getElementById(`view-${v}`); ae.style.opacity = '1'; ae.style.pointerEvents = 'auto'; ae.style.zIndex = '20';
             const ad = document.getElementById(`btn-${v}`); if(ad) ad.classList.add('active');
             const am = document.getElementById(`mob-${v}`); if(am) am.classList.add('active');
-            if(v === 'roadmap') renderCalendar();
+            if(v==='roadmap') renderCalendar();
         }
 
         function toggleEditMode(e) {
@@ -560,7 +811,6 @@
         function closeModal() { const m = document.getElementById('programModal'); m.classList.add('opacity-0','pointer-events-none'); setTimeout(()=>m.classList.add('hidden'),300); document.body.classList.remove('modal-active'); }
         function openGuide() { const m = document.getElementById('guideModal'); m.classList.remove('hidden','pointer-events-none','opacity-0'); m.querySelector('div').classList.add('scale-100'); }
         function closeGuide() { const m = document.getElementById('guideModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
-        function filterProgram(t) { if(t==='all') renderRoadmap(programKerja); else renderRoadmap(programKerja.filter(p=>p.pillar===t||(t==='Kesehatan'&&p.pillar==='Sosial'))); }
         
         function renderDriveSidebar() { document.getElementById('driveSidebar').innerHTML = driveStructure.map(root => `<div class="mb-3"><div class="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas ${root.icon}"></i> ${root.name}</div><div class="space-y-0.5">${root.children.map(c => `<div onclick="loadDriveFolder('${c.id}', '${c.name}')" class="folder-item cursor-pointer px-4 py-2 hover:bg-blue-50 text-slate-600 text-xs font-medium flex items-center gap-2 transition group border-l-4 border-transparent hover:border-cpi-500"><i class="far fa-folder text-yellow-500 group-hover:scale-110 transition"></i><span class="truncate">${c.name}</span></div>`).join('')}</div></div>`).join(''); if(driveStructure.length > 0 && driveStructure[0].children.length > 0) loadDriveFolder(driveStructure[0].children[0].id, driveStructure[0].children[0].name); }
         function loadDriveFolder(id, name) {
