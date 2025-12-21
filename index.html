@@ -365,6 +365,7 @@
                     <div>
                         <label class="text-[10px] font-bold uppercase text-slate-500 block mb-1">Akun (COA)</label>
                         <select id="finAccount" class="w-full border border-slate-300 rounded p-2 text-xs bg-white font-medium" onchange="autoSetFlowType()">
+                            <option value="999" class="bg-red-50 text-red-700 font-bold">999 - BUTUH KONFIRMASI (AUTO)</option>
                             <optgroup label="100-199 ASET (HARTA)">
                                 <option value="101">101 - Kas Kecil (Petty Cash)</option>
                                 <option value="102">102 - Bank - Operasional</option>
@@ -522,7 +523,12 @@
             financeData.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(t => {
                 if(t.type==='in') totalIn+=t.amount; else totalOut+=t.amount;
                 const c = t.type==='in'?'text-emerald-600':'text-rose-600';
-                tbody.innerHTML += `<tr><td class="p-3 border-b">${t.date}</td><td class="p-3 border-b font-mono">${t.ref||'-'}</td><td class="p-3 border-b font-bold text-slate-700">${t.desc}</td><td class="p-3 border-b text-slate-500">${t.category}</td><td class="p-3 border-b text-right font-mono ${c}">${t.type==='in'?'+':'-'} ${t.amount.toLocaleString()}</td><td class="p-3 border-b text-center"><span class="px-2 py-0.5 rounded text-[10px] uppercase ${t.status==='verified'?'bg-emerald-100 text-emerald-700':'bg-yellow-100 text-yellow-700'}">${t.status}</span></td><td class="p-3 border-b text-center"><button onclick="deleteTrans(${t.id})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></td></tr>`;
+                
+                // Highlight 999
+                let rowClass = t.category == '999' ? 'bg-red-50' : '';
+                let catDisplay = t.category == '999' ? '<span class="text-red-600 font-bold animate-pulse">! BUTUH KONFIRMASI</span>' : t.category;
+
+                tbody.innerHTML += `<tr class="${rowClass}"><td class="p-3 border-b">${t.date}</td><td class="p-3 border-b font-mono">${t.ref||'-'}</td><td class="p-3 border-b font-bold text-slate-700">${t.desc}</td><td class="p-3 border-b text-slate-500">${catDisplay}</td><td class="p-3 border-b text-right font-mono ${c}">${t.type==='in'?'+':'-'} ${t.amount.toLocaleString()}</td><td class="p-3 border-b text-center"><span class="px-2 py-0.5 rounded text-[10px] uppercase ${t.status==='verified'?'bg-emerald-100 text-emerald-700':'bg-yellow-100 text-yellow-700'}">${t.status}</span></td><td class="p-3 border-b text-center"><button onclick="deleteTrans(${t.id})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></td></tr>`;
             });
             document.getElementById('finIn').innerText = `Rp ${totalIn.toLocaleString()}`; document.getElementById('finOut').innerText = `Rp ${totalOut.toLocaleString()}`; document.getElementById('finBalance').innerText = `Rp ${(totalIn-totalOut).toLocaleString()}`;
             const ctx = document.getElementById('financeChart').getContext('2d'); if(window.financeChart instanceof Chart) window.financeChart.destroy();
@@ -551,10 +557,12 @@
             let totalIn = 0;
             let totalOut = 0;
             
+            // Include 999
             const incomeCats = {
                 '401': { name: 'Donasi Tidak Terikat', total: 0 },
                 '402': { name: 'Donasi Terikat (CSR)', total: 0 },
-                '403': { name: 'Hasil Usaha', total: 0 }
+                '403': { name: 'Hasil Usaha', total: 0 },
+                '999': { name: 'DANA MASUK (BELUM DIKATEGORIKAN)', total: 0 }
             };
             
             const expenseCats = {
@@ -564,7 +572,8 @@
                 '601': { name: 'Gaji & Honorarium', total: 0 },
                 '602': { name: 'Transport & Akomodasi', total: 0 },
                 '603': { name: 'Alat Tulis Kantor', total: 0 },
-                '604': { name: 'Konsumsi Rapat', total: 0 }
+                '604': { name: 'Konsumsi Rapat', total: 0 },
+                '999': { name: 'DANA KELUAR (BELUM DIKATEGORIKAN)', total: 0 }
             };
 
             // Process Data
