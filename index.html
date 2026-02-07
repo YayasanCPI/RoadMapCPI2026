@@ -82,6 +82,7 @@
     <div id="cloud-loader" class="fixed inset-0 z-[70] flex flex-col items-center justify-center hidden">
         <div class="w-16 h-16 border-4 border-cpi-200 border-t-cpi-700 rounded-full animate-spin mb-4"></div>
         <h3 class="font-bold text-cpi-900 text-lg">Menyinkronkan...</h3>
+        <p class="text-xs text-slate-500 mt-2">Jangan tutup halaman ini.</p>
     </div>
 
     <!-- NAVBAR -->
@@ -108,7 +109,7 @@
                 <div class="flex items-center gap-3">
                     <div id="status-indicator" class="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded border border-yellow-200"><div class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div><span class="text-[10px] font-bold text-yellow-700 hidden md:inline">Connecting...</span></div>
                     <button onclick="forceSync()" class="text-[10px] bg-cpi-100 text-cpi-700 px-2 py-1 rounded hover:bg-cpi-200 transition h-8 w-8 flex items-center justify-center rounded-full"><i class="fas fa-sync"></i></button>
-                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300"><img src="https://ui-avatars.com/api/?name=Admin+CPI&background=0c4a6e&color=fff" alt="Profile"></div>
+                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300"><img src="https://ui-avatars.com/api/?name=Alhamdi&background=0c4a6e&color=fff" alt="Profile"></div>
                 </div>
             </div>
         </div>
@@ -153,7 +154,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-3">
                     <div>
                         <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-wallet text-cpi-600"></i> Buku Kas Umum</h2>
-                        <p class="text-xs text-slate-500 mt-1">Pencatatan sesuai Kode Akun Yayasan.</p>
+                        <p class="text-xs text-slate-500 mt-1">Terhubung ke Google Sheet (Tab: Finance).</p>
                     </div>
                     <div class="flex gap-2">
                          <button onclick="downloadReportPDF()" class="px-4 py-2 text-xs font-bold bg-white text-rose-600 border border-rose-200 rounded-lg shadow-sm hover:bg-rose-50 transition"><i class="fas fa-file-pdf mr-1"></i> Unduh Laporan</button>
@@ -302,7 +303,6 @@
                 <div class="p-5 overflow-y-auto prose prose-sm prose-slate max-w-none bg-white">
                     <h2 class="text-center">Laporan Strategis 2026</h2>
                     <p>Ringkasan: Tahun 2026 adalah International Year of Volunteers. Fokus 3 Pilar: Pendidikan, Kesehatan, Lingkungan.</p>
-                    <p>(Konten lengkap sesuai dokumen word sebelumnya...)</p>
                 </div>
             </div>
         </div>
@@ -324,11 +324,11 @@
                         <div class="bg-indigo-50 p-2 rounded border border-indigo-100">
                             <label class="text-[10px] font-bold text-indigo-700 uppercase block mb-1">Status Pelaksanaan</label>
                             <select id="editStatus" class="w-full border rounded p-1 text-xs font-bold text-slate-700">
-                                <option value="waiting">⚪ Menunggu (Rencana)</option>
-                                <option value="progress">🔵 On Progress (Berjalan)</option>
-                                <option value="completed">🟢 Terlaksana (Selesai)</option>
-                                <option value="pending">🟠 Tertunda (Arsip)</option>
-                                <option value="canceled">🔴 Gagal/Batal (Arsip)</option>
+                                <option value="waiting">🛑 Menunggu (Rencana)</option>
+                                <option value="progress">⏳ On Progress (Berjalan)</option>
+                                <option value="completed">✅ Terlaksana (Selesai)</option>
+                                <option value="pending">⏸️ Tertunda (Arsip)</option>
+                                <option value="canceled">❌ Gagal/Batal (Arsip)</option>
                             </select>
                         </div>
                         
@@ -412,24 +412,26 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8o4TFD7I8goakzGET83LFluJNYmfXe_HAQrJ6-TTNACsj6N7qTTr5mMILWqf1KLyd/exec"; 
-        const fallbackData = [{ id: 1, status: 'waiting', month: 'Januari', date: '17', fullDate: '2026-01-17', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', loc: 'Online', steps: ['Siap Alat'] }];
+        // --- CONFIG ---
+        // PENTING: URL ini harus sesuai dengan "Web App URL" dari Deployment terbaru
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMXOkuz6Q0WTLz6py-psNT1yMdMAWlYS-dDqa7EDTTggzCH8xCHcfQflRklwuKVYfCsA/exec"; 
         
-        // NEW STATUS CONFIG
+        // --- DATA & CONFIG ---
+        const fallbackData = [{ id: 1, status: 'waiting', month: 'Januari', date: '17', fullDate: '2026-01-17', title: 'Webinar Safety', pillar: 'Kesehatan', color: 'rose', desc: 'Demo K3', kpi: '50 Org', rab: 'Rp 5jt', loc: 'Online', steps: ['Siap Alat'] }];
         const statusConfig = {
             'waiting': { label: 'Menunggu', class: 'bg-slate-100 text-slate-600 border-slate-200', icon: 'fa-pause-circle' },
             'progress': { label: 'On Progress', class: 'bg-blue-100 text-blue-700 border-blue-200', icon: 'fa-spinner fa-spin' },
             'completed': { label: 'Terlaksana', class: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: 'fa-check-circle' },
             'pending': { label: 'Tertunda', class: 'bg-orange-100 text-orange-700 border-orange-200', icon: 'fa-clock' },
             'canceled': { label: 'Gagal/Batal', class: 'bg-red-100 text-red-700 border-red-200', icon: 'fa-times-circle' },
-            // Backward comp
             'todo': { label: 'Menunggu', class: 'bg-slate-100 text-slate-600 border-slate-200', icon: 'fa-pause-circle' },
             'doing': { label: 'On Progress', class: 'bg-blue-100 text-blue-700 border-blue-200', icon: 'fa-spinner fa-spin' },
             'done': { label: 'Terlaksana', class: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: 'fa-check-circle' }
         };
 
-        let programKerja = []; let financeData = []; 
-        let currentEditId = null; let currentMonth = 0; // Jan 2026
+        let programKerja = []; 
+        let financeData = []; 
+        let currentEditId = null; let currentMonth = 0;
         const monthsName = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
         const driveStructure = [
@@ -441,42 +443,87 @@
             { id: 'root_05', name: '05. Media', icon: 'fa-bullhorn', children: [{ id: '1itUpV-0J3fvAEmBG47NHaa6LHS8kikOS', name: '05.01 Visual' }, { id: '1gX4UXrPT5nQgzkkOQosMoQSC0igiHNNJ', name: '05.02 Dok Kegiatan' }] }
         ];
 
+        // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => { 
-            fetchData(); 
-            const finLocal = localStorage.getItem('cpi_finance_local');
-            if(finLocal) financeData = JSON.parse(finLocal);
+            initData(); // Fetch all data
             renderDriveSidebar(); 
             renderCalendar();
-            renderFinance();
+            // Load local backups first for speed
+            const localProg = localStorage.getItem('cpi_cloud_backup');
+            if(localProg) { programKerja = JSON.parse(localProg); refreshUI(); }
+            const localFin = localStorage.getItem('cpi_finance_local');
+            if(localFin) { financeData = JSON.parse(localFin); renderFinance(); }
         });
 
-        async function fetchData() {
+        async function initData() {
             showLoader(true); setStatus('Connecting...', 'yellow');
             try {
-                const res = await fetch(SCRIPT_URL); const data = await res.json();
-                programKerja = (data && data.length) ? data.map(p => ({...p, status: p.status || 'waiting'})) : fallbackData;
+                // Fetch Program Data (?type=program is default or implicit)
+                const resProg = await fetch(SCRIPT_URL + "?type=program");
+                const dataProg = await resProg.json();
+                
+                // Fetch Finance Data (?type=finance)
+                const resFin = await fetch(SCRIPT_URL + "?type=finance");
+                const dataFin = await resFin.json();
+
+                // Assign Data
+                if(dataProg && Array.isArray(dataProg)) {
+                    programKerja = dataProg.map(p => ({...p, status: p.status || 'waiting'}));
+                    localStorage.setItem('cpi_cloud_backup', JSON.stringify(programKerja));
+                }
+                
+                if(dataFin && Array.isArray(dataFin)) {
+                    // Convert amount to number just in case
+                    financeData = dataFin.map(f => ({...f, amount: parseInt(f.amount) || 0}));
+                    localStorage.setItem('cpi_finance_local', JSON.stringify(financeData));
+                }
+
                 setStatus('Online', 'green');
             } catch (e) {
-                const local = localStorage.getItem('cpi_cloud_backup');
-                programKerja = local ? JSON.parse(local) : fallbackData;
+                console.error("Sync Error:", e);
                 setStatus('Offline', 'red');
-            } finally { refreshUI(); showLoader(false); }
+            } finally { 
+                refreshUI(); renderFinance(); showLoader(false); 
+            }
         }
 
+        // --- SYNC FUNCTIONS (CLOUD) ---
         async function saveDataToCloud() {
+            // Save Program Kerja
             showLoader(true); setStatus('Syncing...', 'yellow');
             try {
                 localStorage.setItem('cpi_cloud_backup', JSON.stringify(programKerja));
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(programKerja) });
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ type: 'program', data: programKerja }) 
+                });
                 setStatus('Online', 'green'); refreshUI();
             } catch (e) { setStatus('Sync Error', 'red'); } finally { showLoader(false); }
         }
+
+        async function saveFinanceToCloud() {
+            // Save Finance
+            showLoader(true); setStatus('Syncing Finance...', 'yellow');
+            try {
+                localStorage.setItem('cpi_finance_local', JSON.stringify(financeData));
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ type: 'finance', data: financeData }) 
+                });
+                setStatus('Online', 'green'); renderFinance();
+            } catch (e) { setStatus('Sync Error', 'red'); } finally { showLoader(false); }
+        }
         
-        function forceSync() { if(confirm("Sync data?")) saveDataToCloud(); }
-        function refreshUI() { updateDashboard(); renderCalendar(); renderKanban(); renderTimeline(); renderFinance(); }
+        function forceSync() { if(confirm("Sinkronisasi semua data?")) initData(); }
+        function refreshUI() { updateDashboard(); renderCalendar(); renderKanban(); renderTimeline(); }
         function showLoader(show) { document.getElementById('cloud-loader').className = show ? 'fixed inset-0 z-[70] flex flex-col items-center justify-center' : 'hidden'; }
         function setStatus(text, color) { document.getElementById('status-indicator').innerHTML = `<div class="w-2 h-2 rounded-full bg-${color}-500 animate-pulse"></div><span class="text-[10px] font-bold text-${color}-700 hidden md:inline">${text}</span>`; }
 
+        // --- DASHBOARD LOGIC ---
         function updateDashboard() {
             const total = programKerja.length; let done = 0;
             programKerja.forEach(p => { if(p.status === 'completed' || p.status === 'done') done++; });
@@ -486,10 +533,9 @@
             const sCounts = {'completed':0,'progress':0,'waiting':0};
             programKerja.forEach(p => {
                 let k = p.pillar; if(k==='Sosial') k='Kesehatan'; if(pCounts[k]!==undefined) pCounts[k]++;
-                // Map old status to new simplified dashboard stats
                 let st = p.status; 
                 if(st==='todo') st='waiting'; if(st==='doing') st='progress'; if(st==='done') st='completed';
-                if(['pending','canceled'].includes(st)) st='completed'; // Group finished items
+                if(['pending','canceled'].includes(st)) st='completed'; 
                 if(sCounts[st]!==undefined) sCounts[st]++;
             });
 
@@ -505,6 +551,7 @@
         // --- FINANCE FUNCTIONS ---
         function openFinanceModal() { const m = document.getElementById('financeModal'); m.classList.remove('hidden','pointer-events-none','opacity-0'); m.querySelector('div').classList.add('scale-100'); }
         function closeFinanceModal() { const m = document.getElementById('financeModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
+        
         function saveTransaction() {
             const date = document.getElementById('finDate').value;
             const ref = document.getElementById('finRef').value;
@@ -513,134 +560,85 @@
             const desc = document.getElementById('finDesc').value;
             const cat = document.getElementById('finAccount').value;
             const ok = document.getElementById('finApproval').checked;
+            
             if(!date || amt<=0) return alert("Lengkapi data!");
-            financeData.push({ id: Date.now(), date, ref, type, amount: amt, desc, category: cat, status: ok?'verified':'pending' });
-            localStorage.setItem('cpi_finance_local', JSON.stringify(financeData));
-            renderFinance(); closeFinanceModal();
+            
+            // Simpan ke Array Global
+            financeData.push({ 
+                id: Date.now(), 
+                date, 
+                ref, 
+                type, 
+                amount: amt, 
+                desc, 
+                category: cat, 
+                status: ok ? 'verified' : 'pending' 
+            });
+            
+            // Trigger Sync ke Cloud (Google Sheet: Finance)
+            saveFinanceToCloud();
+            closeFinanceModal();
         }
+        
         function renderFinance() {
             let totalIn=0, totalOut=0; const tbody = document.getElementById('financeTableBody'); tbody.innerHTML = '';
             financeData.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(t => {
                 if(t.type==='in') totalIn+=t.amount; else totalOut+=t.amount;
                 const c = t.type==='in'?'text-emerald-600':'text-rose-600';
-                
-                // Highlight 999
                 let rowClass = t.category == '999' ? 'bg-red-50' : '';
                 let catDisplay = t.category == '999' ? '<span class="text-red-600 font-bold animate-pulse">! BUTUH KONFIRMASI</span>' : t.category;
 
                 tbody.innerHTML += `<tr class="${rowClass}"><td class="p-3 border-b">${t.date}</td><td class="p-3 border-b font-mono">${t.ref||'-'}</td><td class="p-3 border-b font-bold text-slate-700">${t.desc}</td><td class="p-3 border-b text-slate-500">${catDisplay}</td><td class="p-3 border-b text-right font-mono ${c}">${t.type==='in'?'+':'-'} ${t.amount.toLocaleString()}</td><td class="p-3 border-b text-center"><span class="px-2 py-0.5 rounded text-[10px] uppercase ${t.status==='verified'?'bg-emerald-100 text-emerald-700':'bg-yellow-100 text-yellow-700'}">${t.status}</span></td><td class="p-3 border-b text-center"><button onclick="deleteTrans(${t.id})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></td></tr>`;
             });
             document.getElementById('finIn').innerText = `Rp ${totalIn.toLocaleString()}`; document.getElementById('finOut').innerText = `Rp ${totalOut.toLocaleString()}`; document.getElementById('finBalance').innerText = `Rp ${(totalIn-totalOut).toLocaleString()}`;
-            const ctx = document.getElementById('financeChart').getContext('2d'); if(window.financeChart instanceof Chart) window.financeChart.destroy();
+            
+            const ctx = document.getElementById('financeChart').getContext('2d'); 
+            if(window.financeChart instanceof Chart) window.financeChart.destroy();
             let bal=0; const trend = financeData.slice().reverse().map(d => { bal += (d.type==='in'?d.amount:-d.amount); return bal; });
             window.financeChart = new Chart(ctx, { type: 'line', data: { labels: financeData.slice().reverse().map(d=>d.date), datasets: [{ label: 'Saldo', data: trend, borderColor: '#0369a1', tension: 0.4, fill: true, backgroundColor: 'rgba(3, 105, 161, 0.1)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: {legend:{display:false}}, scales:{y:{beginAtZero:true}} } });
         }
-        function deleteTrans(id) { if(confirm('Hapus transaksi?')) { financeData = financeData.filter(t=>t.id!==id); localStorage.setItem('cpi_finance_local', JSON.stringify(financeData)); renderFinance(); } }
         
-        // --- PDF REPORT GENERATION (CASHFLOW FORMAT) ---
+        function deleteTrans(id) { 
+            if(confirm('Hapus transaksi ini? (Akan disinkron ke Cloud)')) { 
+                financeData = financeData.filter(t=>t.id!==id); 
+                saveFinanceToCloud(); 
+            } 
+        }
+        
+        // --- PDF REPORT (Sama seperti sebelumnya) ---
         function downloadReportPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
-            // Header
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.setTextColor(3, 105, 161); // Brand Color
-            doc.text("LAPORAN ARUS KAS YAYASAN CPI", 105, 20, null, "center");
-            
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text("Periode: s.d. " + new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }), 105, 27, null, "center");
-            doc.line(20, 32, 190, 32);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(3, 105, 161); doc.text("LAPORAN ARUS KAS YAYASAN CPI", 105, 20, null, "center");
+            doc.setFontSize(10); doc.setTextColor(100); doc.text("Periode: s.d. " + new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }), 105, 27, null, "center"); doc.line(20, 32, 190, 32);
 
-            // Grouping Logic
-            let totalIn = 0;
-            let totalOut = 0;
-            
-            // Include 999
-            const incomeCats = {
-                '401': { name: 'Donasi Tidak Terikat', total: 0 },
-                '402': { name: 'Donasi Terikat (CSR)', total: 0 },
-                '403': { name: 'Hasil Usaha', total: 0 },
-                '999': { name: 'DANA MASUK (BELUM DIKATEGORIKAN)', total: 0 }
-            };
-            
-            const expenseCats = {
-                '501': { name: 'Beban Program Pendidikan', total: 0 },
-                '502': { name: 'Beban Program Kesehatan', total: 0 },
-                '503': { name: 'Beban Program Lingkungan', total: 0 },
-                '601': { name: 'Gaji & Honorarium', total: 0 },
-                '602': { name: 'Transport & Akomodasi', total: 0 },
-                '603': { name: 'Alat Tulis Kantor', total: 0 },
-                '604': { name: 'Konsumsi Rapat', total: 0 },
-                '999': { name: 'DANA KELUAR (BELUM DIKATEGORIKAN)', total: 0 }
-            };
+            let totalIn = 0; let totalOut = 0;
+            const incomeCats = { '401': { name: 'Donasi Tidak Terikat', total: 0 }, '402': { name: 'Donasi Terikat (CSR)', total: 0 }, '403': { name: 'Hasil Usaha', total: 0 }, '999': { name: 'DANA MASUK (BELUM DIKATEGORIKAN)', total: 0 } };
+            const expenseCats = { '501': { name: 'Beban Program Pendidikan', total: 0 }, '502': { name: 'Beban Program Kesehatan', total: 0 }, '503': { name: 'Beban Program Lingkungan', total: 0 }, '601': { name: 'Gaji & Honorarium', total: 0 }, '602': { name: 'Transport & Akomodasi', total: 0 }, '603': { name: 'Alat Tulis Kantor', total: 0 }, '604': { name: 'Konsumsi Rapat', total: 0 }, '999': { name: 'DANA KELUAR (BELUM DIKATEGORIKAN)', total: 0 } };
 
-            // Process Data
             financeData.forEach(t => {
-                if (t.type === 'in') {
-                    totalIn += t.amount;
-                    if (incomeCats[t.category]) incomeCats[t.category].total += t.amount;
-                } else {
-                    totalOut += t.amount;
-                    if (expenseCats[t.category]) expenseCats[t.category].total += t.amount;
-                }
+                if (t.type === 'in') { totalIn += t.amount; if (incomeCats[t.category]) incomeCats[t.category].total += t.amount; } 
+                else { totalOut += t.amount; if (expenseCats[t.category]) expenseCats[t.category].total += t.amount; }
             });
 
-            // Table Data Construction
             let bodyData = [];
-            
-            // Section: PEMASUKAN
             bodyData.push([{ content: 'ARUS KAS MASUK (PENERIMAAN)', colSpan: 2, styles: { fontStyle: 'bold', fillColor: [240, 253, 250], textColor: [6, 95, 70] } }]);
-            Object.values(incomeCats).forEach(c => {
-                if (c.total > 0) bodyData.push([c.name, 'Rp ' + c.total.toLocaleString('id-ID')]);
-            });
+            Object.values(incomeCats).forEach(c => { if (c.total > 0) bodyData.push([c.name, 'Rp ' + c.total.toLocaleString('id-ID')]); });
             bodyData.push([{ content: 'Total Penerimaan', styles: { fontStyle: 'bold' }}, { content: 'Rp ' + totalIn.toLocaleString('id-ID'), styles: { fontStyle: 'bold', textColor: [6, 95, 70] } }]);
             
-            // Section: PENGELUARAN
             bodyData.push([{ content: 'ARUS KAS KELUAR (PENGELUARAN)', colSpan: 2, styles: { fontStyle: 'bold', fillColor: [255, 241, 242], textColor: [153, 27, 27], valign: 'middle' } }]);
-            Object.values(expenseCats).forEach(c => {
-                if (c.total > 0) bodyData.push([c.name, 'Rp ' + c.total.toLocaleString('id-ID')]);
-            });
+            Object.values(expenseCats).forEach(c => { if (c.total > 0) bodyData.push([c.name, 'Rp ' + c.total.toLocaleString('id-ID')]); });
             bodyData.push([{ content: 'Total Pengeluaran', styles: { fontStyle: 'bold' }}, { content: 'Rp ' + totalOut.toLocaleString('id-ID'), styles: { fontStyle: 'bold', textColor: [153, 27, 27] } }]);
 
-            // Section: SUMMARY
             const surplus = totalIn - totalOut;
             const surplusColor = surplus >= 0 ? [6, 95, 70] : [153, 27, 27];
-            bodyData.push([{ content: '', colSpan: 2, styles: { fillColor: [255, 255, 255] } }]); // Spacer
+            bodyData.push([{ content: '', colSpan: 2, styles: { fillColor: [255, 255, 255] } }]); 
             bodyData.push([{ content: 'SURPLUS / (DEFISIT)', styles: { fontStyle: 'bold', fontSize: 11, fillColor: [241, 245, 249] }}, { content: 'Rp ' + surplus.toLocaleString('id-ID'), styles: { fontStyle: 'bold', fontSize: 11, textColor: surplusColor, fillColor: [241, 245, 249] } }]);
 
-            // Generate Table
-            doc.autoTable({
-                startY: 40,
-                head: [['Uraian', 'Nominal']],
-                body: bodyData,
-                theme: 'grid',
-                headStyles: { fillColor: [3, 105, 161], textColor: 255, fontStyle: 'bold' },
-                columnStyles: {
-                    0: { cellWidth: 120 },
-                    1: { cellWidth: 'auto', halign: 'right' }
-                },
-                styles: { fontSize: 10, cellPadding: 4 }
-            });
+            doc.autoTable({ startY: 40, head: [['Uraian', 'Nominal']], body: bodyData, theme: 'grid', headStyles: { fillColor: [3, 105, 161], textColor: 255, fontStyle: 'bold' }, columnStyles: { 0: { cellWidth: 120 }, 1: { cellWidth: 'auto', halign: 'right' } }, styles: { fontSize: 10, cellPadding: 4 } });
 
-            // Footer
-            const finalY = doc.lastAutoTable.finalY + 20;
-            doc.setFontSize(9);
-            doc.setTextColor(100);
-            doc.text("Dicetak otomatis oleh CPI Command Center", 20, 280);
-            doc.text("Halaman 1 dari 1", 190, 280, null, "right");
-            
-            // Signatures Area
-            if (finalY < 250) {
-                doc.text("Disetujui Oleh,", 140, finalY);
-                doc.text("Dibuat Oleh,", 30, finalY);
-                doc.line(140, finalY + 25, 180, finalY + 25);
-                doc.line(30, finalY + 25, 70, finalY + 25);
-                doc.text("( Ketua Yayasan )", 140, finalY + 30);
-                doc.text("( Bendahara )", 30, finalY + 30);
-            }
-
+            const finalY = doc.lastAutoTable.finalY + 20; doc.setFontSize(9); doc.setTextColor(100); doc.text("Dicetak otomatis oleh CPI Command Center", 20, 280); doc.text("Halaman 1 dari 1", 190, 280, null, "right");
+            if (finalY < 250) { doc.text("Disetujui Oleh,", 140, finalY); doc.text("Dibuat Oleh,", 30, finalY); doc.line(140, finalY + 25, 180, finalY + 25); doc.line(30, finalY + 25, 70, finalY + 25); doc.text("( Ketua Yayasan )", 140, finalY + 30); doc.text("( Bendahara )", 30, finalY + 30); }
             doc.save('Laporan_Keuangan_CPI_' + new Date().toISOString().split('T')[0] + '.pdf');
         }
 
@@ -683,55 +681,23 @@
             }).join('');
         }
 
-        // --- KANBAN (UPDATED LOGIC) ---
+        // --- KANBAN ---
         function renderKanban() {
-            const cols = { 
-                todo: document.getElementById('kanban-todo'), 
-                doing: document.getElementById('kanban-doing'), 
-                done: document.getElementById('kanban-done') 
-            };
+            const cols = { todo: document.getElementById('kanban-todo'), doing: document.getElementById('kanban-doing'), done: document.getElementById('kanban-done') };
             Object.values(cols).forEach(c => c.innerHTML = '');
             const counts = { todo:0, doing:0, done:0 };
-            
             programKerja.forEach(p => {
                 const st = p.status || 'waiting';
                 let targetCol = 'todo';
-                
-                // Logic Mapping
-                if (st === 'waiting' || st === 'todo') targetCol = 'todo';
-                else if (st === 'progress' || st === 'doing') targetCol = 'doing';
-                else targetCol = 'done'; // completed, pending, canceled
-                
+                if (st === 'waiting' || st === 'todo') targetCol = 'todo'; else if (st === 'progress' || st === 'doing') targetCol = 'doing'; else targetCol = 'done'; 
                 counts[targetCol]++;
-                
-                // Visual Config
                 const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar] || 'slate';
                 const sConf = statusConfig[st] || statusConfig['waiting'];
-                
-                const card = document.createElement('div'); 
-                card.className = `kanban-card bg-white p-3 rounded shadow-sm border-l-4 border-${c}-500 mb-2`;
-                
-                // CARD HTML (SIMPLIFIED - NO CHECKS)
-                card.innerHTML = `
-                    <div class="flex justify-between mb-2">
-                        <span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span>
-                        <div class="text-slate-400 text-xs hover:text-cpi-600"><i class="fas fa-edit"></i></div>
-                    </div>
-                    <h4 class="font-bold text-xs text-slate-800 mb-2 leading-tight">${p.title}</h4>
-                    <div class="border-t border-slate-100 pt-2 flex items-center justify-between">
-                        <span class="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold uppercase border ${sConf.class}">
-                            <i class="fas ${sConf.icon}"></i> ${sConf.label}
-                        </span>
-                    </div>
-                `;
-                
-                card.onclick = () => openProgramDetail(p.id); 
-                cols[targetCol].appendChild(card);
+                const card = document.createElement('div'); card.className = `kanban-card bg-white p-3 rounded shadow-sm border-l-4 border-${c}-500 mb-2`;
+                card.innerHTML = `<div class="flex justify-between mb-2"><span class="text-[9px] uppercase font-bold text-${c}-600 bg-${c}-50 px-1 py-0.5 rounded">${p.pillar}</span><div class="text-slate-400 text-xs hover:text-cpi-600"><i class="fas fa-edit"></i></div></div><h4 class="font-bold text-xs text-slate-800 mb-2 leading-tight">${p.title}</h4><div class="border-t border-slate-100 pt-2 flex items-center justify-between"><span class="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold uppercase border ${sConf.class}"><i class="fas ${sConf.icon}"></i> ${sConf.label}</span></div>`;
+                card.onclick = () => openProgramDetail(p.id); cols[targetCol].appendChild(card);
             });
-            
-            document.getElementById('count-todo').innerText = counts.todo; 
-            document.getElementById('count-doing').innerText = counts.doing; 
-            document.getElementById('count-done').innerText = counts.done;
+            document.getElementById('count-todo').innerText = counts.todo; document.getElementById('count-doing').innerText = counts.doing; document.getElementById('count-done').innerText = counts.done;
         }
 
         // --- MODALS & EDITS ---
@@ -740,39 +706,16 @@
             const c = {'Pendidikan':'blue','Kesehatan':'rose','Lingkungan':'emerald','Internal':'slate','Sosial':'rose'}[p.pillar];
             document.getElementById('modalTitle').innerText = p.title; 
             
-            // Build View Content
             const sConf = statusConfig[p.status || 'waiting'] || statusConfig['waiting'];
-            const viewHtml = `
-                <div class="flex items-center justify-between mb-2">
-                    <span class="px-2 py-0.5 bg-${c}-100 text-${c}-700 rounded text-[10px] font-bold uppercase">${p.pillar}</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${sConf.class}"><i class="fas ${sConf.icon} mr-1"></i>${sConf.label}</span>
-                </div>
-                <p class="text-sm text-slate-600" id="modalDesc">${p.desc}</p>
-                <div class="grid grid-cols-3 gap-2 text-xs bg-slate-50 p-3 rounded border border-slate-100">
-                    <div><span class="block text-[10px] text-slate-400 uppercase font-bold">KPI</span><span class="font-bold">${p.kpi}</span></div>
-                    <div><span class="block text-[10px] text-slate-400 uppercase font-bold">RAB</span><span class="font-mono text-emerald-600">${p.rab}</span></div>
-                    <div><span class="block text-[10px] text-slate-400 uppercase font-bold">Lokasi</span><span>${p.loc}</span></div>
-                </div>
-                <div>
-                    <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-1">Tahapan</h4>
-                    <ul class="space-y-1" id="modalSteps">
-                        ${(p.steps||[]).map((s,i) => `<li class="flex gap-2 items-start text-xs text-slate-600"><span class="flex-none w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-bold border">${i+1}</span><span>${s}</span></li>`).join('')}
-                    </ul>
-                </div>
-            `;
+            const viewHtml = `<div class="flex items-center justify-between mb-2"><span class="px-2 py-0.5 bg-${c}-100 text-${c}-700 rounded text-[10px] font-bold uppercase">${p.pillar}</span><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${sConf.class}"><i class="fas ${sConf.icon} mr-1"></i>${sConf.label}</span></div><p class="text-sm text-slate-600" id="modalDesc">${p.desc}</p><div class="grid grid-cols-3 gap-2 text-xs bg-slate-50 p-3 rounded border border-slate-100"><div><span class="block text-[10px] text-slate-400 uppercase font-bold">KPI</span><span class="font-bold">${p.kpi}</span></div><div><span class="block text-[10px] text-slate-400 uppercase font-bold">RAB</span><span class="font-mono text-emerald-600">${p.rab}</span></div><div><span class="block text-[10px] text-slate-400 uppercase font-bold">Lokasi</span><span>${p.loc}</span></div></div><div><h4 class="text-[10px] font-bold text-slate-400 uppercase mb-1">Tahapan</h4><ul class="space-y-1" id="modalSteps">${(p.steps||[]).map((s,i) => `<li class="flex gap-2 items-start text-xs text-slate-600"><span class="flex-none w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-bold border">${i+1}</span><span>${s}</span></li>`).join('')}</ul></div>`;
             document.getElementById('content-view').innerHTML = viewHtml;
             
-            // Populate Edit Form
-            document.getElementById('editTitle').value = p.title; 
-            document.getElementById('editDesc').value = p.desc;
-            document.getElementById('editKPI').value = p.kpi; 
-            document.getElementById('editRAB').value = p.rab;
-            document.getElementById('editLoc').value = p.loc; 
-            document.getElementById('editSteps').value = (p.steps||[]).join('\n'); 
-            document.getElementById('editStatus').value = p.status || 'waiting'; // Set dropdown
+            document.getElementById('editTitle').value = p.title; document.getElementById('editDesc').value = p.desc;
+            document.getElementById('editKPI').value = p.kpi; document.getElementById('editRAB').value = p.rab;
+            document.getElementById('editLoc').value = p.loc; document.getElementById('editSteps').value = (p.steps||[]).join('\n'); 
+            document.getElementById('editStatus').value = p.status || 'waiting';
             
-            let dVal = ''; if(p.fullDate) dVal = p.fullDate; 
-            else if(p.date) { const d = parseInt(p.date); const m = monthsName.indexOf(p.month); if(!isNaN(d) && m > -1) dVal = `2026-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+            let dVal = ''; if(p.fullDate) dVal = p.fullDate; else if(p.date) { const d = parseInt(p.date); const m = monthsName.indexOf(p.month); if(!isNaN(d) && m > -1) dVal = `2026-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
             document.getElementById('editDate').value = dVal; document.getElementById('editMonth').value = p.month || '';
 
             toggleEditMode(false);
@@ -790,11 +733,9 @@
                 programKerja[idx].rab = document.getElementById('editRAB').value;
                 programKerja[idx].loc = document.getElementById('editLoc').value; 
                 programKerja[idx].steps = document.getElementById('editSteps').value.split('\n').filter(s=>s.trim()!=='');
-                programKerja[idx].status = document.getElementById('editStatus').value; // Save new status
-                
+                programKerja[idx].status = document.getElementById('editStatus').value;
                 const dVal = document.getElementById('editDate').value;
                 if(dVal) { programKerja[idx].fullDate = dVal; programKerja[idx].date = new Date(dVal).getDate().toString(); programKerja[idx].month = document.getElementById('editMonth').value; }
-                
                 openProgramDetail(currentEditId); saveDataToCloud();
             }
         }
