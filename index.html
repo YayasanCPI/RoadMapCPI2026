@@ -595,8 +595,12 @@
             const ctx = document.getElementById('financeChart').getContext('2d'); 
             if(window.financeChart instanceof Chart) window.financeChart.destroy();
             let bal=0; const trend = financeData.slice().reverse().map(d => { bal += (d.type==='in'?d.amount:-d.amount); return bal; });
-            window.financeChart = new Chart(ctx, { type: 'line', data: { labels: financeData.slice().reverse().map(d=>d.date), datasets: [{ label: 'Saldo', data: trend, borderColor: '#0369a1', tension: 0.4, fill: true, backgroundColor: 'rgba(3, 105, 161, 0.1)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: {legend:{display:false}}, scales:{y:{beginAtZero:true}} } });
-        }
+            window.financeChart = new Chart(ctx, { type: 'line', data: { labels: financeData.slice().reverse().map(d=> {
+    const tgl = new Date(d.date);
+    return tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}), datasets: [{ label: 'Saldo', data: trend, borderColor: '#0369a1', tension: 0.4, fill: true, backgroundColor: 'rgba(3, 105, 161, 0.1)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: {legend:{display:false}}, scales:{y:{beginAtZero:true},
+    x:{ticks:{maxTicksLimit:10, maxRotation:30, minRotation:0}}
+        } } });
         
         function deleteTrans(id) { 
             if(confirm('Hapus transaksi ini? (Akan disinkron ke Cloud)')) { 
