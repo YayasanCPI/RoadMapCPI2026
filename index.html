@@ -496,7 +496,7 @@
                 await fetch(SCRIPT_URL, { 
                     method: 'POST', 
                     mode: 'no-cors', 
-                    headers: {'Content-Type': 'application/json'}, 
+                    headers: {'Content-Type': 'text/plain'}, 
                     body: JSON.stringify({ type: 'program', data: programKerja }) 
                 });
                 setStatus('Online', 'green'); refreshUI();
@@ -511,7 +511,7 @@
                 await fetch(SCRIPT_URL, { 
                     method: 'POST', 
                     mode: 'no-cors', 
-                    headers: {'Content-Type': 'application/json'}, 
+                    headers: {'Content-Type': 'text/plain'}, 
                     body: JSON.stringify({ type: 'finance', data: financeData }) 
                 });
                 setStatus('Online', 'green'); renderFinance();
