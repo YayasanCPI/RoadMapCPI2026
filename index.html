@@ -148,7 +148,7 @@
             </div>
         </div>
 
-        <!-- VIEW 2: KEUANGAN (UPDATED COA + PDF) -->
+        <!-- VIEW 2: KEUANGAN -->
         <div id="view-finance" class="absolute inset-0 overflow-y-auto p-4 md:p-6 transition-opacity duration-300 z-10 opacity-0 pointer-events-none bg-slate-50">
             <div class="max-w-5xl mx-auto space-y-6 pb-20">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-3">
@@ -307,7 +307,7 @@
             </div>
         </div>
 
-        <!-- PROGRAM EDIT MODAL (SIMPLIFIED & UPDATED) -->
+        <!-- PROGRAM EDIT MODAL -->
         <div id="programModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg h-auto max-h-[90vh] flex flex-col transform transition-all scale-95 overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-none">
@@ -320,7 +320,7 @@
                          <!-- View Content populated by JS -->
                     </div>
                     <div id="content-edit" class="space-y-3 hidden">
-                        <!-- STATUS DROPDOWN BARU -->
+                        <!-- STATUS DROPDOWN -->
                         <div class="bg-indigo-50 p-2 rounded border border-indigo-100">
                             <label class="text-[10px] font-bold text-indigo-700 uppercase block mb-1">Status Pelaksanaan</label>
                             <select id="editStatus" class="w-full border rounded p-1 text-xs font-bold text-slate-700">
@@ -336,7 +336,6 @@
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase">Deskripsi</label><textarea id="editDesc" rows="2" class="edit-input text-xs"></textarea></div>
                         <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-bold text-slate-500 uppercase">KPI</label><input type="text" id="editKPI" class="edit-input text-xs"></div><div><label class="text-[10px] font-bold text-slate-500 uppercase">RAB</label><input type="text" id="editRAB" class="edit-input text-xs font-mono"></div><div><label class="text-[10px] font-bold text-slate-500 uppercase">Loc</label><input type="text" id="editLoc" class="edit-input text-xs"></div></div>
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase">Tahapan</label><textarea id="editSteps" rows="3" class="edit-input text-xs"></textarea></div>
-                        <!-- Validation Fields REMOVED -->
                     </div>
                 </div>
                 <div class="px-4 py-3 border-t border-slate-100 bg-slate-50 flex justify-between items-center flex-none">
@@ -350,7 +349,7 @@
             </div>
         </div>
 
-        <!-- FINANCE MODAL (SOP COMPLIANT) -->
+        <!-- FINANCE MODAL -->
         <div id="financeModal" class="fixed inset-0 z-[60] hidden opacity-0 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm modal p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg flex flex-col transform transition-all scale-95 max-h-[90vh]">
                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
@@ -413,7 +412,6 @@
 
     <script>
         // --- CONFIG ---
-        // PENTING: URL ini harus sesuai dengan "Web App URL" dari Deployment terbaru
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxt87Vpeg8rhvf0cRj22-N95qGAshGt5J3sqceEUkAnnQJUmnIBY-T2yarIH646zWCC/exec"; 
         
         // --- DATA & CONFIG ---
@@ -445,10 +443,9 @@
 
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => { 
-            initData(); // Fetch all data
+            initData();
             renderDriveSidebar(); 
             renderCalendar();
-            // Load local backups first for speed
             const localProg = localStorage.getItem('cpi_cloud_backup');
             if(localProg) { programKerja = JSON.parse(localProg); refreshUI(); }
             const localFin = localStorage.getItem('cpi_finance_local');
@@ -458,22 +455,18 @@
         async function initData() {
             showLoader(true); setStatus('Connecting...', 'yellow');
             try {
-                // Fetch Program Data (?type=program is default or implicit)
                 const resProg = await fetch(SCRIPT_URL + "?type=program");
                 const dataProg = await resProg.json();
                 
-                // Fetch Finance Data (?type=finance)
                 const resFin = await fetch(SCRIPT_URL + "?type=finance");
                 const dataFin = await resFin.json();
 
-                // Assign Data
                 if(dataProg && Array.isArray(dataProg)) {
                     programKerja = dataProg.map(p => ({...p, status: p.status || 'waiting'}));
                     localStorage.setItem('cpi_cloud_backup', JSON.stringify(programKerja));
                 }
                 
                 if(dataFin && Array.isArray(dataFin)) {
-                    // Convert amount to number just in case
                     financeData = dataFin.map(f => ({...f, amount: parseInt(f.amount) || 0}));
                     localStorage.setItem('cpi_finance_local', JSON.stringify(financeData));
                 }
@@ -489,7 +482,6 @@
 
         // --- SYNC FUNCTIONS (CLOUD) ---
         async function saveDataToCloud() {
-            // Save Program Kerja
             showLoader(true); setStatus('Syncing...', 'yellow');
             try {
                 localStorage.setItem('cpi_cloud_backup', JSON.stringify(programKerja));
@@ -499,12 +491,11 @@
                     headers: {'Content-Type': 'text/plain'}, 
                     body: JSON.stringify({ type: 'program', data: programKerja }) 
                 });
-                setStatus('Online', 'green'); refreshUI();
+                setStatus('Online', 'green');
             } catch (e) { setStatus('Sync Error', 'red'); } finally { showLoader(false); }
         }
 
         async function saveFinanceToCloud() {
-            // Save Finance
             showLoader(true); setStatus('Syncing Finance...', 'yellow');
             try {
                 localStorage.setItem('cpi_finance_local', JSON.stringify(financeData));
@@ -514,7 +505,7 @@
                     headers: {'Content-Type': 'text/plain'}, 
                     body: JSON.stringify({ type: 'finance', data: financeData }) 
                 });
-                setStatus('Online', 'green'); renderFinance();
+                setStatus('Online', 'green');
             } catch (e) { setStatus('Sync Error', 'red'); } finally { showLoader(false); }
         }
         
@@ -561,9 +552,8 @@
             const cat = document.getElementById('finAccount').value;
             const ok = document.getElementById('finApproval').checked;
             
-            if(!date || amt<=0) return alert("Lengkapi data!");
+            if(!date || amt<=0) return alert("Lengkapi data lengkap terlebih dahulu.");
             
-            // Simpan ke Array Global
             financeData.push({ 
                 id: Date.now(), 
                 date, 
@@ -575,7 +565,7 @@
                 status: ok ? 'verified' : 'pending' 
             });
             
-            // Trigger Sync ke Cloud (Google Sheet: Finance)
+            renderFinance();
             saveFinanceToCloud();
             closeFinanceModal();
         }
@@ -595,21 +585,36 @@
             const ctx = document.getElementById('financeChart').getContext('2d'); 
             if(window.financeChart instanceof Chart) window.financeChart.destroy();
             let bal=0; const trend = financeData.slice().reverse().map(d => { bal += (d.type==='in'?d.amount:-d.amount); return bal; });
-            window.financeChart = new Chart(ctx, { type: 'line', data: { labels: financeData.slice().reverse().map(d=> {
-    const tgl = new Date(d.date);
-    return tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}), datasets: [{ label: 'Saldo', data: trend, borderColor: '#0369a1', tension: 0.4, fill: true, backgroundColor: 'rgba(3, 105, 161, 0.1)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: {legend:{display:false}}, scales:{y:{beginAtZero:true},
-    x:{ticks:{maxTicksLimit:10, maxRotation:30, minRotation:0}}
-        } } });
-        
+            window.financeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: financeData.slice().reverse().map(d => {
+                        const tgl = new Date(d.date);
+                        return tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    }),
+                    datasets: [{ label: 'Saldo', data: trend, borderColor: '#0369a1', tension: 0.4, fill: true, backgroundColor: 'rgba(3, 105, 161, 0.1)' }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { ticks: { maxTicksLimit: 10, maxRotation: 30, minRotation: 0 } }
+                    }
+                }
+            });
+        }
+
         function deleteTrans(id) { 
-            if(confirm('Hapus transaksi ini? (Akan disinkron ke Cloud)')) { 
+            if(confirm('Hapus transaksi ini secara permanen?')) { 
                 financeData = financeData.filter(t=>t.id!==id); 
+                renderFinance();
                 saveFinanceToCloud(); 
             } 
         }
         
-        // --- PDF REPORT (Sama seperti sebelumnya) ---
+        // --- PDF REPORT ---
         function downloadReportPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -723,11 +728,19 @@
             document.getElementById('editDate').value = dVal; document.getElementById('editMonth').value = p.month || '';
 
             toggleEditMode(false);
-            const m = document.getElementById('programModal'); m.classList.remove('hidden','pointer-events-none','opacity-0'); m.querySelector('div').classList.add('scale-100'); document.body.classList.add('modal-active');
+            const modal = document.getElementById('programModal'); modal.classList.remove('hidden','pointer-events-none','opacity-0'); modal.querySelector('div').classList.add('scale-100'); document.body.classList.add('modal-active');
         }
 
         function autoUpdateMonth() { const d = document.getElementById('editDate').value; if(d) document.getElementById('editMonth').value = monthsName[new Date(d).getMonth()]; }
-        function deleteProgram() { if(currentEditId !== null && confirm("Hapus permanen?")) { programKerja = programKerja.filter(p => p.id !== currentEditId); closeModal(); saveDataToCloud(); } }
+        
+        function deleteProgram() { 
+            if(currentEditId !== null && confirm("Hapus permanen?")) { 
+                programKerja = programKerja.filter(p => p.id !== currentEditId); 
+                closeModal(); 
+                refreshUI();
+                saveDataToCloud(); 
+            } 
+        }
 
         function saveChanges() {
             if(currentEditId===null) return; const idx = programKerja.findIndex(p=>p.id===currentEditId); if(idx!==-1){
@@ -740,7 +753,10 @@
                 programKerja[idx].status = document.getElementById('editStatus').value;
                 const dVal = document.getElementById('editDate').value;
                 if(dVal) { programKerja[idx].fullDate = dVal; programKerja[idx].date = new Date(dVal).getDate().toString(); programKerja[idx].month = document.getElementById('editMonth').value; }
-                openProgramDetail(currentEditId); saveDataToCloud();
+                
+                openProgramDetail(currentEditId);
+                refreshUI();
+                saveDataToCloud();
             }
         }
 
